@@ -86,114 +86,92 @@
         <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
     </div>
     <div id="cardDetails"></div>
-    <script>
-        let cardData;
-        let cvcVerified = false;
+    
+<script>
+    let cardData;
+    let cvcVerified = false;
 
-        function getCardIdFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('cardId');
+    function getCardIdFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('cardId');
+    }
+
+    function verifyCVC(enteredCVC) {
+        if (enteredCVC === cardData['CVC:'].toString()) {
+            document.getElementById('cvcForm').style.display = 'none';
+            document.getElementById('cardDetails').style.display = 'block';
+            displayCardDetails();
+            cvcVerified = true;
+        } else {
+            document.getElementById('cvcError').style.display = 'block';
+        }
+    }
+
+    function updateCardDetails() {
+        if (!cardData) {
+            document.getElementById('loading').style.display = 'block';
         }
 
-        function verifyCVC(enteredCVC) {
-            if (enteredCVC === cardData['CVC:'].toString()) {
-                document.getElementById('cvcForm').style.display = 'none';
-                document.getElementById('cardDetails').style.display = 'block';
-                displayCardDetails();
-                cvcVerified = true;
-            } else {
-                document.getElementById('cvcError').style.display = 'block';
-            }
+        const cardId = getCardIdFromUrl();
+        if (!cardId) {
+            document.getElementById('cardDetails').textContent = 'Card ID not provided.';
+            document.getElementById('loading').style.display = 'none';
+            return;
         }
 
-        function updateCardDetails() {
-            if (!cardData) {
-                document.getElementById('loading').style.display = 'block';
-            }
+        const sheetUrl = 'https://script.google.com/macros/s/AKfycbzAJX5JWLyT_VPstMN16d39TjD8FbIcIBMbRIezvWtHIBZ_rqbEPYX85RClJkX_FT0/exec'; // Replace with your actual URL
 
-            const cardId = getCardIdFromUrl();
-            if (!cardId) {
-                document.getElementById('cardDetails').textContent = 'Card ID not provided.';
-                document.getElementById('loading').style.display = 'none';
-                return;
-            }
-
-            const sheetUrl = 'https://script.google.com/macros/s/AKfycbz26GctOkp5YPhn32YfRubwsN2dQM1fL9-LBSIy2_i8BQQDrMdoVNC26KFZkKz-Cq9S/exec';
-
-            fetch(sheetUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    cardData = data.find(item => item['Card Number:'] === cardId);
-                    if (cardData) {
-                        if (!cvcVerified) {
-                            document.getElementById('cvcForm').innerHTML = `
-                                <label for="cvcInput">Enter CVC:</label>
-                                <input type="password" id="cvcInput" onkeypress="handleKeyPress(event)">
-                                <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
-                            `;
-                        }
-                        document.getElementById('loading').style.display = 'none';
-                        const purchases = cardData['Purchases:'].split(/[\n,]+/);
-                        let purchasesList = '<ul>';
-                        purchases.forEach(purchase => {
-                            purchasesList += `<li>${purchase.trim()}</li>`;
-                        });
-                        purchasesList += '</ul>';
-
-                        document.getElementById('cardDetails').innerHTML = `
-                            <h2>Card Details</h2>
-                            <div class="detail-item"><strong>Card Number:</strong> ${cardData['Card Number:']}</div>
-                            <div class="detail-item"><strong>Card Balance:</strong> ${cardData['Card Balance:']}</div>
-                            <div class="detail-item"><strong>Name on card:</strong> ${cardData['Name on card:']}</div>
-                            <div class="detail-item"><strong>Type:</strong> ${cardData['Type:']}</div>
-                            <div class="detail-item"><strong>Purchases:</strong> ${purchasesList}</div>
-                            <label><input type="checkbox" id="freezeToggle" ${cardData['Frozen:'] === 'Yes' ? 'checked' : ''} onchange="updateFreezeStatus()"> Freeze Card</label><br>
-                            <button onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header'">Report Fraud</button>
+        fetch(sheetUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                cardData = data.find(item => item['Card Number:'] === cardId);
+                if (cardData) {
+                    if (!cvcVerified) { // Only rewrite the form if CVC is not verified
+                        document.getElementById('cvcForm').innerHTML = `
+                            <label for="cvcInput">Enter CVC:</label>
+                            <input type="password" id="cvcInput">
+                            <button onclick="verifyCVC(document.getElementById('cvcInput').value)">Verify</button>
+                            <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
                         `;
-
-                    } else {
-                        document.getElementById('cardDetails').textContent = 'Card not found.';
-                        document.getElementById('loading').style.display = 'none';
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    document.getElementById('cardDetails').textContent = 'Error loading card details.';
+                    // ... rest of the code ...
+                } else {
+                    document.getElementById('cardDetails').textContent = 'Card not found.';
                     document.getElementById('loading').style.display = 'none';
-                });
-        }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.getElementById('cardDetails').textContent = 'Error loading card details.';
+                document.getElementById('loading').style.display = 'none';
+            });
+    }
 
-        function updateFreezeStatus() {
-            const freezeToggle = document.getElementById('freezeToggle');
-            const freezeStatus = freezeToggle.checked ? 'Yes' : 'No';
+    function updateFreezeStatus() {
+        const freezeToggle = document.getElementById('freezeToggle');
+        const freezeStatus = freezeToggle.checked ? 'Yes' : 'No';
 
-            freezeToggle.disabled = true;
+        freezeToggle.disabled = true;
 
-            google.script.run
-                .withSuccessHandler(function() {
-                    freezeToggle.disabled = false;
-                })
-                .withFailureHandler(function(error) {
-                    freezeToggle.disabled = false;
-                    console.error('Error updating freeze status:', error);
-                    alert('Failed to update freeze status. Please try again.');
-                })
-                .updateFreeze(cardData['Card Number:'], freezeStatus);
-        }
+        google.script.run
+            .withSuccessHandler(function() {
+                freezeToggle.disabled = false;
+            })
+            .withFailureHandler(function(error) {
+                freezeToggle.disabled = false;
+                console.error('Error updating freeze status:', error);
+                alert('Failed to update freeze status. Please try again.');
+            })
+            .updateFreeze(cardData['Card Number:'], freezeStatus);
+    }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                verifyCVC(document.getElementById('cvcInput').value);
-            }
-        }
-
-        updateCardDetails();
-        setInterval(updateCardDetails, 2000);
-    </script>
+    updateCardDetails();
+    setInterval(updateCardDetails, 2000);
+</script>
 </body>
 </html>
