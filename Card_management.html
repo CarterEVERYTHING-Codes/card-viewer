@@ -88,6 +88,7 @@
     <div id="cardDetails"></div>
     <script>
         let cardData;
+        let cvcVerified = false;
 
         function getCardIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -99,6 +100,7 @@
                 document.getElementById('cvcForm').style.display = 'none';
                 document.getElementById('cardDetails').style.display = 'block';
                 displayCardDetails();
+                cvcVerified = true;
             } else {
                 document.getElementById('cvcError').style.display = 'block';
             }
@@ -128,13 +130,14 @@
                 .then(data => {
                     cardData = data.find(item => item['Card Number:'] === cardId);
                     if (cardData) {
-                        // CVC verification moved here
-                        document.getElementById('cvcForm').innerHTML = `
-                            <label for="cvcInput">Enter CVC:</label>
-                            <input type="password" id="cvcInput">
-                            <button onclick="verifyCVC(document.getElementById('cvcInput').value)">Verify</button>
-                            <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
-                        `;
+                        if (!cvcVerified) {
+                            document.getElementById('cvcForm').innerHTML = `
+                                <label for="cvcInput">Enter CVC:</label>
+                                <input type="password" id="cvcInput">
+                                <button onclick="verifyCVC(document.getElementById('cvcInput').value)">Verify</button>
+                                <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
+                            `;
+                        }
                         document.getElementById('loading').style.display = 'none';
                         const purchases = cardData['Purchases:'].split(/[\n,]+/);
                         let purchasesList = '<ul>';
