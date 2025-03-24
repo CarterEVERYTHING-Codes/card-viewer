@@ -5,7 +5,7 @@
     <style>
         body {
             font-family: 'Josefin Sans', sans-serif;
-            background-color: #f4f4f4; /* Light background */
+            background-color: #f4f4f4;
             color: #333;
             margin: 0;
             padding: 0;
@@ -19,13 +19,23 @@
             text-align: center;
             margin-bottom: 20px;
         }
+        #cvcForm {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            max-width: 90%;
+            text-align: center;
+        }
         #cardDetails {
+            display: none;
             background-color: #fff;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px; /* Set a fixed width */
-            max-width: 90%; /* Responsive width */
+            width: 400px;
+            max-width: 90%;
         }
         h2 {
             margin-top: 0;
@@ -50,7 +60,7 @@
             margin-bottom: 8px;
         }
         button {
-            background-color: #dc3545; /* Red button */
+            background-color: #dc3545;
             color: #fff;
             padding: 12px 20px;
             border: none;
@@ -60,7 +70,7 @@
             margin-top: 20px;
         }
         button:hover {
-            background-color: #c82333; /* Darker red on hover */
+            background-color: #c82333;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -69,16 +79,36 @@
 </head>
 <body>
     <div id="loading">Loading...</div>
+    <div id="cvcForm">
+        <label for="cvcInput">Enter CVC:</label>
+        <input type="password" id="cvcInput">
+        <button onclick="verifyCVC()">Verify</button>
+        <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
+    </div>
     <div id="cardDetails"></div>
     <script>
-        // Your JavaScript code here...
+        let cardData;
+
         function getCardIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('cardId');
         }
 
+        function verifyCVC() {
+            const enteredCVC = document.getElementById('cvcInput').value;
+            if (enteredCVC === cardData['CVC:'].toString()) {
+                document.getElementById('cvcForm').style.display = 'none';
+                document.getElementById('cardDetails').style.display = 'block';
+                displayCardDetails();
+            } else {
+                document.getElementById('cvcError').style.display = 'block';
+            }
+        }
+
         function updateCardDetails() {
-            document.getElementById('loading').style.display = 'block';
+            if (!cardData) {
+                document.getElementById('loading').style.display = 'block';
+            }
 
             const cardId = getCardIdFromUrl();
             if (!cardId) {
@@ -87,7 +117,7 @@
                 return;
             }
 
-            const sheetUrl = 'https://script.google.com/macros/s/AKfycbwLLoJPYpxZjCj4HuSt1N_93qgWNVYZS5FcFfhsv1yb-tFx1ZC-bFXnd2kXqBja8LqJ/exec';
+            const sheetUrl = 'https://script.google.com/macros/s/AKfycbwRLk_5u8h1WFy85900MfSgIfj2G188LRPRfQC_RTBBWKm0HuraNK814Vq91-Ua2Lik/exec';
 
             fetch(sheetUrl)
                 .then(response => {
@@ -97,9 +127,9 @@
                     return response.json();
                 })
                 .then(data => {
-                    const card = data.find(item => item['Card Number:'] === cardId);
-                    if (card) {
-                        const purchases = card['Purchases:'].split(/[\n,]+/);
+                    cardData = data.find(item => item['Card Number:'] === cardId);
+                    if (cardData) {
+                        const purchases = cardData['Purchases:'].split(/[\n,]+/);
                         let purchasesList = '<ul>';
                         purchases.forEach(purchase => {
                             purchasesList += `<li>${purchase.trim()}</li>`;
@@ -108,11 +138,12 @@
 
                         document.getElementById('cardDetails').innerHTML = `
                             <h2>Card Details</h2>
-                            <div class="detail-item"><strong>Card Number:</strong> ${card['Card Number:']}</div>
-                            <div class="detail-item"><strong>Card Balance:</strong> ${card['Card Balance:']}</div>
-                            <div class="detail-item"><strong>Name on card:</strong> ${card['Name on card:']}</div>
-                            <div class="detail-item"><strong>Type:</strong> ${card['Type:']}</div>
+                            <div class="detail-item"><strong>Card Number:</strong> ${cardData['Card Number:']}</div>
+                            <div class="detail-item"><strong>Card Balance:</strong> ${cardData['Card Balance:']}</div>
+                            <div class="detail-item"><strong>Name on card:</strong> ${cardData['Name on card:']}</div>
+                            <div class="detail-item"><strong>Type:</strong> ${cardData['Type:']}</div>
                             <div class="detail-item"><strong>Purchases:</strong> ${purchasesList}</div>
+                            <label><input type="checkbox" id="freezeToggle" ${cardData['Frozen:'] === 'Yes' ? 'checked' : ''} onchange="updateFreezeStatus()"> Freeze Card</label><br>
                             <button onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header'">Report Fraud</button>
                         `;
                     } else {
@@ -125,6 +156,11 @@
                     document.getElementById('cardDetails').textContent = 'Error loading card details.';
                     document.getElementById('loading').style.display = 'none';
                 });
+        }
+
+        function updateFreezeStatus() {
+            const freezeStatus = document.getElementById('freezeToggle').checked ? 'Yes' : 'No';
+            google.script.run.updateFreeze(cardData['Card Number:'], freezeStatus);
         }
 
         updateCardDetails();
