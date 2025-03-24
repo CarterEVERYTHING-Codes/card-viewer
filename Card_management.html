@@ -89,7 +89,7 @@
 <script>
     let cardData;
     let cvcVerified = false;
-    let intervalId; // Store the interval ID
+    let intervalId;
 
     function getCardIdFromUrl() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -102,12 +102,14 @@
             return;
         }
 
+        console.log("cardData:", cardData); // Add this line
+
         if (enteredCVC === cardData['CVC:'].toString()) {
             document.getElementById('cvcForm').style.display = 'none';
             document.getElementById('cardDetails').style.display = 'block';
             displayCardDetails();
             cvcVerified = true;
-            if (!intervalId) { // Start interval only once
+            if (!intervalId) {
                 intervalId = setInterval(updateCardDetails, 2000);
             }
         } else {
