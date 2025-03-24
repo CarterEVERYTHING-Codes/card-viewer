@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Card Details</title>
+    <style>
+        body {
+            font-family: 'Josefin Sans', sans-serif;
+            background-color: #f4f4f4; /* Light background */
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #cardDetails {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px; /* Set a fixed width */
+            max-width: 90%; /* Responsive width */
+        }
+        h2 {
+            margin-top: 0;
+            color: #007bff;
+            text-align: center;
+        }
+        .detail-item {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .detail-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        button {
+            background-color: #dc3545; /* Red button */
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loading">Loading...</div>
+    <div id="cardDetails"></div>
+    <script>
+        // Your JavaScript code here...
+        function getCardIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('cardId');
+        }
+
+        function updateCardDetails() {
+            document.getElementById('loading').style.display = 'block';
+
+            const cardId = getCardIdFromUrl();
+            if (!cardId) {
+                document.getElementById('cardDetails').textContent = 'Card ID not provided.';
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+
+            const sheetUrl = 'https://script.google.com/macros/s/AKfycbwLLoJPYpxZjCj4HuSt1N_93qgWNVYZS5FcFfhsv1yb-tFx1ZC-bFXnd2kXqBja8LqJ/exec';
+
+            fetch(sheetUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const card = data.find(item => item['Card Number:'] === cardId);
+                    if (card) {
+                        const purchases = card['Purchases:'].split(/[\n,]+/);
+                        let purchasesList = '<ul>';
+                        purchases.forEach(purchase => {
+                            purchasesList += `<li>${purchase.trim()}</li>`;
+                        });
+                        purchasesList += '</ul>';
+
+                        document.getElementById('cardDetails').innerHTML = `
+                            <h2>Card Details</h2>
+                            <div class="detail-item"><strong>Card Number:</strong> ${card['Card Number:']}</div>
+                            <div class="detail-item"><strong>Card Balance:</strong> ${card['Card Balance:']}</div>
+                            <div class="detail-item"><strong>Name on card:</strong> ${card['Name on card:']}</div>
+                            <div class="detail-item"><strong>Type:</strong> ${card['Type:']}</div>
+                            <div class="detail-item"><strong>Purchases:</strong> ${purchasesList}</div>
+                            <button onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header'">Report Fraud</button>
+                        `;
+                    } else {
+                        document.getElementById('cardDetails').textContent = 'Card not found.';
+                    }
+                    document.getElementById('loading').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('cardDetails').textContent = 'Error loading card details.';
+                    document.getElementById('loading').style.display = 'none';
+                });
+        }
+
+        updateCardDetails();
+        setInterval(updateCardDetails, 2000);
+    </script>
+</body>
+</html>
