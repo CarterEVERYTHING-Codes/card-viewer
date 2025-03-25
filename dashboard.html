@@ -168,29 +168,31 @@
                 }
             }
 
-            function fetchCardData() {
-                const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbz4qiGOt6e4RPHdqNZF-gRnM50-FdSGI1tcPc949Uh5iAl-JpJAyMhVMNVvyCH0C-Qs/exec';
-                fetch(sheetUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        cardData = data.find(item => item['Card Number:'] === cardId);
-                        if (cardData) {
-                            console.log("Card Data:", cardData);
-                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
-                            displayCardDetails();
-                            displayTransactions();
+           function fetchCardData() {
+    const cardId = getCardIdFromUrl();
+    const sheetUrl = 'https://script.google.com/macros/s/AKfycbz4qiGOt6e4RPHdqNZF-gRnM50-FdSGI1tcPc949Uh5iAl-JpJAyMhVMNVvyCH0C-Qs/exec';
+    fetch(sheetUrl)
+        .then(response => response.json())
+        .then(data => {
+            cardData = data.find(item => item['Card Number:'] === cardId);
+            if (cardData) {
+                console.log("Card Data:", cardData);
+                document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
+                displayCardDetails();
+                displayTransactions();
 
-                            const freezeToggle = document.getElementById('freezeToggle');
-                            if (cardData['Frozen:'] === 'Yes') {
-                                freezeToggle.checked = true;
-                            } else {
-                                freezeToggle.checked = false;
-                            }
-                        }
-                    });
+                console.log("Frozen Value:", cardData['Frozen:']); // Log the value here
+
+                // Update freeze toggle based on the "Frozen:" column (case-insensitive)
+                const freezeToggle = document.getElementById('freezeToggle');
+                if (cardData['Frozen:'] && cardData['Frozen:'].toLowerCase() === 'yes') {
+                    freezeToggle.checked = true;
+                } else {
+                    freezeToggle.checked = false;
+                }
             }
-
+        });
+}
             fetchCardData();
 
             document.getElementById('freezeToggle').addEventListener('change', function() {
