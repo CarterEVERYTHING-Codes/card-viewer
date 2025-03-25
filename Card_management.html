@@ -87,86 +87,19 @@
     </div>
     <div id="cardDetails"></div>
 <script>
-    let cardData;
-    let cvcVerified = false;
-    let intervalId;
-
-    function getCardIdFromUrl() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('cardId');
-    }
-
-    function verifyCVC(enteredCVC) {
-        if (!cardData) {
-            console.error("cardData is undefined. Cannot verify CVC.");
-            return;
-        }
-
-        console.log("cardData:", cardData);
-
-        if (enteredCVC === cardData['CVC:'].toString()) {
-            document.getElementById('cvcForm').style.display = 'none';
-            document.getElementById('cardDetails').style.display = 'block';
-            displayCardDetails();
-            cvcVerified = true;
-            if (!intervalId) {
-                intervalId = setInterval(updateCardDetails, 2000);
-            }
-        } else {
-            document.getElementById('cvcError').style.display = 'block';
-        }
-    }
-
     function updateCardDetails() {
-            console.log("updateCardDetails() called"); // Add this line
-        if (!cardData) {
-            document.getElementById('loading').style.display = 'block';
-        }
-
-        const cardId = getCardIdFromUrl();
-        if (!cardId) {
-            document.getElementById('cardDetails').textContent = 'Card ID not provided.';
-            document.getElementById('loading').style.display = 'none';
-            return;
-        }
-
         const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
 
         fetch(sheetUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                cardData = data.find(item => item['Card Number:'] === cardId); // Assign data to cardData
-                if (cardData) {
-                    if (!cvcVerified) {
-                        document.getElementById('cvcForm').innerHTML = `
-                            <label for="cvcInput">Enter CVC:</label>
-                            <input type="password" id="cvcInput">
-                            <button onclick="verifyCVC(document.getElementById('cvcInput').value)">Verify</button>
-                            <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
-                        `;
-                        // Call verifyCVC() after data is fetched
-                        verifyCVC(document.getElementById('cvcInput').value);
-                    }
-                    document.getElementById('loading').style.display = 'none';
-                    // ... rest of the code ...
-                } else {
-                    document.getElementById('cardDetails').textContent = 'Card not found.';
-                    document.getElementById('loading').style.display = 'none';
-                }
+                console.log("Data fetched:", data);
             })
             .catch(error => {
-                console.error('Error fetching data:', error);
-                document.getElementById('cardDetails').textContent = 'Error loading card details.';
-                document.getElementById('loading').style.display = 'none';
+                console.error("Error fetching data:", error);
             });
     }
 
-    // Call updateCardDetails() initially to fetch data
     updateCardDetails();
 </script>
 </body>
