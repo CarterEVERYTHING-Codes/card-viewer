@@ -145,6 +145,8 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOMContentLoaded event fired!"); // Debugging
+
             let cardData;
 
             function getCardIdFromUrl() {
@@ -192,21 +194,22 @@
             }
 
             function fetchCardData() {
+                console.log("fetchCardData() called!"); // Debugging
+
                 document.getElementById('loadingScreen').style.display = 'flex';
                 setTimeout(() => {
-                    document.getElementById('loadingLogo').style.transform = 'translateX(-100%)'; // Slide left
+                    document.getElementById('loadingLogo').style.transform = 'translateX(-100%)';
                     setTimeout(() => {
                         document.getElementById('loadingScreen').style.display = 'none';
-                        // Move the data fetch here:
                         const cardId = getCardIdFromUrl();
-                        const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
+                        const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec';
                         fetch(sheetUrl)
                             .then(response => response.json())
                             .then(data => {
-                                console.log("Data from Google Apps Script:", data);
+                                console.log("Fetched Data:", data); // Debugging
                                 cardData = data.find(item => item['Card Number:'] === cardId);
                                 if (cardData) {
-                                    console.log("Card Data:", cardData);
+                                    console.log("Card Data:", cardData); // Debugging
                                     document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
                                     displayCardDetails();
                                     displayTransactions();
@@ -215,9 +218,4 @@
                             .catch(error => {
                                 document.getElementById('loadingScreen').style.display = 'none';
                                 document.getElementById('errorMessage').textContent = 'Error loading data. Please try again.';
-                                document.getElementById('errorScreen').style.display = 'flex';
-                                console.error('Error fetching card data:', error);
-                                document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
-                                document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
-                            });
-                    }, 500); // Wait
+                                document.getElementById('error
