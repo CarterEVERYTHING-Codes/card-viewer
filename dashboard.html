@@ -111,38 +111,32 @@
                 }
             }
 
-     function fetchCardData() {
-  const cardId = getCardIdFromUrl();
-  const sheetUrl = 'https://script.google.com/macros/s/AKfycbwJ2eExOnchIbaw6dGePpZrthJ90v6XdYVzMuAw-iHocQh4Fx_6bYv8H_D7TBxqvI0_/exec'; // Replace with your actual URL
-  fetch(sheetUrl)
-    .then(response => response.json())
-    .then(data => {
-      console.log("Data from Google Apps Script:", data); // Add this line
-      cardData = data.find(item => item['Card Number:'] === cardId);
-      if (cardData) {
-        console.log("Card Data:", cardData);
-        document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
-        displayCardDetails();
-        displayTransactions();
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching card data:', error);
-      document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
-      document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
-    });
-}
+            function fetchCardData() {
+                const cardId = getCardIdFromUrl();
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwJ2eExOnchIbaw6dGePpZrthJ90v6XdYVzMuAw-iHocQh4Fx_6bYv8H_D7TBxqvI0_/exec'; // Replace with your actual URL
+                fetch(sheetUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Data from Google Apps Script:", data); // Add this line
+                        cardData = data.find(item => item['Card Number:'] === cardId);
+                        if (cardData) {
+                            console.log("Card Data:", cardData);
+                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
+                            displayCardDetails();
+                            displayTransactions();
+                        }
                     })
                     .catch(error => {
                         console.error('Error fetching card data:', error);
                         document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
                         document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
                     });
+            }
 
             fetchCardData();
 
             document.getElementById('reportFraudButton').addEventListener('click', function() {
-                window.location.href = '';
+                window.location.href = 'https://your-fraud-reporting-url.com'; // Replace with appropriate URL
             });
         });
     </script>
