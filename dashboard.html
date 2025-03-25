@@ -201,21 +201,19 @@
                 document.getElementById('loadingScreen').style.display = 'flex';
                 const cardId = getCardIdFromUrl();
                 const sheetUrl = 'YOUR_GOOGLE_APPS_SCRIPT_URL'; // Replace with your actual URL
-                console.log("Fetching data from:", sheetUrl); //Debugging
+                console.log("Fetching data from:", sheetUrl); // Debugging: URL being fetched
+                console.log("Card ID being used:", cardId); // Debugging: Card ID being used
+
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('loadingScreen').style.display = 'none';
-                        console.log("Data from Google Apps Script:", data);
+                        console.log("Raw data from Google Apps Script:", data); // Debugging: Raw data
                         cardData = data.find(item => item['Card Number:'] === cardId);
                         if (cardData) {
-                            console.log("Card Data:", cardData);
+                            console.log("Card Data found:", cardData); // Debugging: Card data found
                             document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
                             displayCardDetails();
                             displayTransactions();
-                        }
-                    })
-                    .catch(error => {
-                        document.getElementById('loadingScreen').style.display = 'none';
-                        document.getElementById('errorMessage').textContent = 'Error loading data. Please try again.';
-                        document.getElementById
+                        } else {
+                            console.log("Card
