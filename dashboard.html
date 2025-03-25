@@ -191,22 +191,9 @@
             }
 
             window.reportFraud = function() {
-                window.location.href = 'fraud_report.html';
+                window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header';
             }
 
             function updateFreezeStatus(freeze) {
                 const cardId = getCardIdFromUrl();
                 const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
-
-                fetch(sheetUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `cardId=<span class="math-inline">\{cardId\}&freeze\=</span>{freeze}`
-                })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Freeze status updated successfully');
-                    } else {
-                        console.error('
