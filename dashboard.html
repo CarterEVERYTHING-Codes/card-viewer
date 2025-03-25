@@ -174,26 +174,30 @@
             }
 
             function updateFreezeStatus(freeze) {
-                const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzYdpESQVW2oj-EpTrHLqRiO2aVSE9L2cp-931vFIyBIDESGOslMVxrHQVZhuyIqbmo/exec';
+    const cardId = getCardIdFromUrl();
+    const sheetUrl = 'https://script.google.com/macros/s/AKfycbzYdpESQVW2oj-EpTrHLqRiO2aVSE9L2cp-931vFIyBIDESGOslMVxrHQVZhuyIqbmo/exec';
 
-                console.log("Card ID:", cardId);
-                console.log("Freeze:", freeze);
+    console.log("Card ID:", cardId);
+    console.log("Freeze:", freeze);
 
-                fetch(sheetUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=updateFreeze&cardId=<span class="math-inline">\{cardId\}&freeze\=</span>{freeze}`
-                })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Freeze status updated successfully');
-                    } else {
-                        console.error('Failed to update freeze status');
-                    }
-                })
+    fetch(sheetUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `action=updateFreeze&cardId=${cardId}&freeze=${freeze}` // Corrected body
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Freeze status updated successfully');
+        } else {
+            console.error('Failed to update freeze status');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating freeze status:', error);
+    });
+}
                 .catch(error => {
                     console.error('Error updating freeze status:', error);
                 });
