@@ -198,4 +198,15 @@
                 const cardId = getCardIdFromUrl();
                 const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
 
-                fetch(sheetUrl
+                fetch(sheetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `cardId=<span class="math-inline">\{cardId\}&freeze\=</span>{freeze}`
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Freeze status updated successfully');
+                    } else {
+                        console.error('
