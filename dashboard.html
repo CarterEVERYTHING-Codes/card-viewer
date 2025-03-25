@@ -19,9 +19,9 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 500px; /* Adjusted width for better layout */
+            width: 500px;
             max-width: 90%;
-            text-align: left; /* Align text to the left */
+            text-align: left;
         }
         h2 {
             margin-top: 0;
@@ -123,6 +123,7 @@
 
         <div class="section" id="securitySection">
             <h2>Security Options</h2>
+            <label>Freeze Card: </label>
             <label class="toggle-switch">
                 <input type="checkbox" id="freezeToggle">
                 <span class="slider round"></span>
@@ -160,39 +161,4 @@
 
             function displayTransactions() {
                 if (cardData) {
-                    let transactionsHtml = `<li>${cardData['Purchases:']}</li>`;
-                    document.getElementById('transactionDetails').innerHTML = transactionsHtml;
-                }
-            }
-
-            function updateFreezeStatus(freeze) {
-                const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
-
-                fetch(sheetUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `cardId=<span class="math-inline">\{cardId\}&freeze\=</span>{freeze}`
-                })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Freeze status updated successfully');
-                    } else {
-                        console.error('Failed to update freeze status');
-                    }
-                });
-            }
-
-            function fetchCardData() {
-                const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
-
-                fetch(sheetUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        cardData = data.find(item => item['Card Number:'] === cardId);
-                        if (cardData) {
-                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
-                            displayCardDetails();
+                    let transactionsHtml = `<li>${cardData['Purchases:']}
