@@ -149,11 +149,8 @@
 
                 let detailsHtml = `
                     <li><strong>Card Number:</strong> ${cardData['Card Number:']}</li>
-                    <li><strong>Card Balance:</strong> ${cardData['Card Balance:']}</li>
-                    <li><strong>Frozen:</strong> ${cardData['Frozen:']}</li>
-                    <li><strong>Name on Card:</strong> ${cardData['Name on card:']}</li>
-                    <li><strong>CVC:</strong> ${cardData['CVC:']}</li>
-                    <li><strong>Type:</strong> ${cardData['Type']}</li>
+                    <li><strong>Card Holder Name:</strong> ${cardData['Name on card:']}</li>
+                    <li><strong>Card Type:</strong> ${cardData['Type']}</li>
                 `;
 
                 document.getElementById('cardDetails').innerHTML = detailsHtml;
@@ -161,4 +158,57 @@
 
             function displayTransactions() {
                 if (cardData) {
-                    let transactionsHtml = `<li>${cardData['Purchases:']}
+                    let transactionsHtml = `<li>${cardData['Purchases:']}</li>`;
+                    document.getElementById('transactionDetails').innerHTML = transactionsHtml;
+                }
+            }
+
+            function updateFreezeStatus(freeze) {
+                const cardId = getCardIdFromUrl();
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+
+                fetch(sheetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `cardId=${cardId}&freeze=${freeze}`
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Freeze status updated successfully');
+                    } else {
+                        console.error('Failed to update freeze status');
+                    }
+                });
+            }
+
+            function fetchCardData() {
+                const cardId = getCardIdFromUrl();
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+
+                fetch(sheetUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        cardData = data.find(item => item['Card Number:'] === cardId);
+                        if (cardData) {
+                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
+                            displayCardDetails();
+                            displayTransactions();
+                        }
+                    });
+            }
+
+            fetchCardData();
+
+            document.getElementById('freezeToggle').addEventListener('change', function() {
+                updateFreezeStatus(this.checked ? 'Yes' : 'No');
+            });
+
+            document.getElementById('reportFraudButton').addEventListener('click', function() {
+                window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header';
+            });
+        });
+    </script>
+</body>
+</html>
