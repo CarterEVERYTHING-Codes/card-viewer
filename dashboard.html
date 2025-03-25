@@ -151,70 +151,68 @@
         </div>
     </div>
     <script>
-        let cardData;
+        document.addEventListener('DOMContentLoaded', function() {
+            let cardData;
 
-        function getCardIdFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('cardId');
-        }
+            function getCardIdFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('cardId');
+            }
 
-        function viewCardDetails() {
-            const cardId = getCardIdFromUrl();
-            window.location.href = `card_management.html?cardId=${cardId}`;
-        }
+            function viewCardDetails() {
+                const cardId = getCardIdFromUrl();
+                window.location.href = `card_management.html?cardId=${cardId}`;
+            }
 
-        function viewTransactions() {
-            const cardId = getCardIdFromUrl();
-            const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+            function viewTransactions() {
+                const cardId = getCardIdFromUrl();
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
 
-            fetch(sheetUrl)
-                .then(response => response.json())
-                .then(data => {
-                    cardData = data.find(item => item['Card Number:'] === cardId);
-                    if (cardData) {
-                        let transactionsHtml = "<h2>Recent Transactions</h2>";
-                        transactionsHtml += "<ul>";
-                        transactionsHtml += `<li>${cardData['Purchases:']}</li>`;
-                        transactionsHtml += "</ul>";
-                        transactionsHtml += '<button onclick="reportFraud()">Report Fraud</button>';
-                        document.getElementById('transactionDetails').innerHTML = transactionsHtml;
-                        document.getElementById('transactionDetails').style.display = 'block';
-                        document.getElementById('securityOptions').style.display = 'none';
+                fetch(sheetUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        cardData = data.find(item => item['Card Number:'] === cardId);
+                        if (cardData) {
+                            let transactionsHtml = "<h2>Recent Transactions</h2>";
+                            transactionsHtml += "<ul>";
+                            transactionsHtml += `<li>${cardData['Purchases:']}</li>`;
+                            transactionsHtml += "</ul>";
+                            transactionsHtml += '<button onclick="reportFraud()">Report Fraud</button>';
+                            document.getElementById('transactionDetails').innerHTML = transactionsHtml;
+                            document.getElementById('transactionDetails').style.display = 'block';
+                            document.getElementById('securityOptions').style.display = 'none';
+                        }
+                    });
+            }
+
+            function viewSecurity() {
+                document.getElementById('securityOptions').style.display = 'block';
+                document.getElementById('transactionDetails').style.display = 'none';
+            }
+
+            function reportFraud() {
+                window.location.href = 'fraud_report.html'; // Replace with your fraud report form URL
+            }
+
+            function updateFreezeStatus(freeze) {
+                const cardId = getCardIdFromUrl();
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+
+                fetch(sheetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `cardId=<span class="math-inline">\{cardId\}&freeze\=</span>{freeze}`
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Freeze status updated successfully');
+                    } else {
+                        console.error('Failed to update freeze status');
                     }
                 });
-        }
+            }
 
-        function viewSecurity() {
-            document.getElementById('securityOptions').style.display = 'block';
-            document.getElementById('transactionDetails').style.display = 'none';
-        }
-
-        function reportFraud() {
-            window.location.href = 'fraud_report.html'; // Replace with your fraud report form URL
-        }
-
-        function updateFreezeStatus(freeze) {
-            const cardId = getCardIdFromUrl();
-            const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
-
-            fetch(sheetUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `cardId=<span class="math-inline">\{cardId\}&freeze\=</span>{freeze}`
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Freeze status updated successfully');
-                } else {
-                    console.error('Failed to update freeze status');
-                }
-            });
-        }
-
-        document.getElementById('freezeToggle').addEventListener('change', function() {
-            updateFreezeStatus(this.checked ? 'Yes' : 'No');
-        });
-
-        function fetchCardData
+            document.getElementById('freezeToggle').addEventListener('change', function() {
+                updateFreezeStatus(this.checked ? 'Yes' : '
