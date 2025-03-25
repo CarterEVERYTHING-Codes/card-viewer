@@ -4,64 +4,73 @@
   <link rel="icon" href="favicon.png" type="image/png">
   <title>Card Dashboard</title>
   <style>
-    body {
-      font-family: 'Josefin Sans', sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .dashboard-container {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 500px;
-      max-width: 90%;
-      text-align: left;
-    }
-    h2 {
-      margin-top: 0;
-      color: #007bff;
-    }
-    .section {
-      margin-bottom: 20px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 15px;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      margin-bottom: 8px;
-    }
-    button {
-      background-color: #007bff;
-      color: #fff;
-      padding: 10px 15px;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .balance-display {
-      font-size: 2em;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    #loadingWheel {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-  </style>
+  body {
+    font-family: 'Josefin Sans', sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text color */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .dashboard-container {
+    background-color: #1e1e1e; /* Darker container background */
+    padding: 30px; /* Increased padding for spaciousness */
+    border-radius: 12px; /* Smoother rounded corners */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Deeper shadow */
+    width: 500px;
+    max-width: 90%;
+    text-align: left;
+  }
+  h2 {
+    margin-top: 0;
+    color: #00bfa5; /* Teal accent color */
+    font-weight: 600; /* Slightly bolder heading */
+    margin-bottom: 20px;
+  }
+  .section {
+    margin-bottom: 30px; /* Increased spacing */
+    border-bottom: 1px solid #333; /* Darker border */
+    padding-bottom: 25px; /* Increased padding */
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 12px; /* Increased spacing */
+    font-size: 1.1em; /* Slightly larger font */
+  }
+  button {
+    background-color: #00bfa5; /* Teal accent color */
+    color: #121212; /* Dark text on button */
+    padding: 12px 20px; /* Larger padding */
+    border: none;
+    border-radius: 6px; /* Rounded corners */
+    cursor: pointer;
+    margin-top: 15px; /* Increased spacing */
+    font-weight: 500; /* Slightly bolder button text */
+    transition: background-color 0.3s ease; /* Smooth transition */
+  }
+  button:hover {
+    background-color: #00897b; /* Darker teal on hover */
+  }
+  .balance-display {
+    font-size: 2.5em; /* Larger balance font */
+    font-weight: 600; /* Bolder balance font */
+    text-align: center;
+    margin-bottom: 25px; /* Increased spacing */
+    color: #00bfa5;
+  }
+  #loadingWheel {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.2em; /* Larger loading text */
+    color: #757575; /* Gray loading text */
+  }
+</style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
