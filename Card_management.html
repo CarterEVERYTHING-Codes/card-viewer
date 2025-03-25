@@ -117,31 +117,18 @@
         }
     }
 
-    function updateCardDetails() {
+    function displayCardDetails() {
         if (!cardData) {
-            document.getElementById('loading').style.display = 'block';
-        }
-
-        const cardId = getCardIdFromUrl();
-        if (!cardId) {
-            document.getElementById('cardDetails').textContent = 'Card ID not provided.';
-            document.getElementById('loading').style.display = 'none';
+            document.getElementById('cardDetails').textContent = 'Card data not available.';
             return;
         }
 
-        const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
-
-        fetch(sheetUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                cardData = data.find(item => item['Card Number:'] === cardId); // Assign data to cardData
-                if (cardData) {
-                    if (!cvcVerified) {
-                        document.getElementById('cvcForm').innerHTML = `
-                            <label for="cvcInput">Enter CVC:</label>
-                            <input
+        let detailsHtml = `
+            <h2>Card Details</h2>
+            <div class="detail-item"><strong>Card Number:</strong> ${cardData['Card Number:']}</div>
+            <div class="detail-item"><strong>Card Balance:</strong> ${cardData['Card Balance:']}</div>
+            <div class="detail-item"><strong>Frozen:</strong> ${cardData['Frozen:']}</div>
+            <div class="detail-item"><strong>Name on Card:</strong> ${cardData['Name on Card:']}</div>
+            <div class="detail-item"><strong>PIN:</strong> ${cardData['PIN:']}</div>
+            <div class="detail-item"><strong>Verification - 1 DTID:</strong> ${cardData['Verification - 1 DTID:']}</div>
+            <div class="detail-item"><strong>Verification Refused - 1 DTID:
