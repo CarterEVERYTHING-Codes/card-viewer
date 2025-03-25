@@ -128,13 +128,13 @@
       }
 
       function reportFraud() {
-        window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header';
+        window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
       }
 
       function fetchCardData() {
         document.getElementById('loadingWheel').style.display = 'block';
         const cardId = getCardIdFromUrl();
-        const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
+        const sheetUrl = 'YOUR_CORRECT_URL'; // Replace with your actual URL
         fetch(sheetUrl)
           .then(response => response.json())
           .then(data => {
