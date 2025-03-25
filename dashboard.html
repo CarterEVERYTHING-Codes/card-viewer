@@ -175,7 +175,7 @@
 
             function updateFreezeStatus(freeze) {
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzYdpESQVW2oj-EpTrHLqRiO2aVSE9L2cp-931vFIyBIDESGOslMVxrHQVZhuyIqbmo/exec';
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbxqBWvs283xd_B6xM0MFDBTOyuE52v_YRTm19Xf4gYzJytV1E8QkMBLo8lHr16K76xG/exec';
 
                 console.log("Card ID:", cardId);
                 console.log("Freeze:", freeze);
@@ -201,7 +201,7 @@
 
             function fetchCardData() {
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzYdpESQVW2oj-EpTrHLqRiO2aVSE9L2cp-931vFIyBIDESGOslMVxrHQVZhuyIqbmo/exec';
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbxqBWvs283xd_B6xM0MFDBTOyuE52v_YRTm19Xf4gYzJytV1E8QkMBLo8lHr16K76xG/exec';
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
