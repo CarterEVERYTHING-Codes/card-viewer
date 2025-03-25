@@ -173,35 +173,33 @@
                 }
             }
 
-            function updateFreezeStatus(freeze) {
-                const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbxqBWvs283xd_B6xM0MFDBTOyuE52v_YRTm19Xf4gYzJytV1E8QkMBLo8lHr16K76xG/exec';
+           function fetchCardData() {
+    const cardId = getCardIdFromUrl();
+    const sheetUrl = 'https://script.google.com/macros/s/AKfycbxqBWvs283xd_B6xM0MFDBTOyuE52v_YRTm19Xf4gYzJytV1E8QkMBLo8lHr16K76xG/exec';
+    fetch(sheetUrl)
+        .then(response => response.json())
+        .then(data => {
+            cardData = data.find(item => item['Card Number:'] === cardId);
+            if (cardData) {
+                console.log("Card Data:", cardData);
+                document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
+                displayCardDetails();
+                displayTransactions();
 
-                console.log("Card ID:", cardId);
-                console.log("Freeze:", freeze);
-
-                fetch(sheetUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=updateFreeze&cardId=${cardId}&freeze=${freeze}` // CORRECTED LINE
-                })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Freeze status updated successfully');
-                    } else {
-                        console.error('Failed to update freeze status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating freeze status:', error);
-                });
+                // Update freeze toggle based on the "Frozen:" column
+                const freezeToggle = document.getElementById('freezeToggle');
+                if (cardData['Frozen:'] === 'Yes') {
+                    freezeToggle.checked = true;
+                } else {
+                    freezeToggle.checked = false;
+                }
             }
+        });
+}
 
             function fetchCardData() {
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbxqBWvs283xd_B6xM0MFDBTOyuE52v_YRTm19Xf4gYzJytV1E8QkMBLo8lHr16K76xG/exec';
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbxMxwJk-yEsUE4hd5yRyk2ElHaaSoWSNZ52Nm7peV16V6QMLN26rHGnflc95mUrCJxD/exec';
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
