@@ -3,75 +3,7 @@
 <head>
     <title>Card Details</title>
     <style>
-        body {
-            font-family: 'Josefin Sans', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        #loading {
-            display: none;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        #cvcForm {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            max-width: 90%;
-            text-align: center;
-        }
-        #cardDetails {
-            display: none;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            max-width: 90%;
-        }
-        h2 {
-            margin-top: 0;
-            color: #007bff;
-            text-align: center;
-        }
-        .detail-item {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        .detail-item strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 8px;
-        }
-        button {
-            background-color: #dc3545;
-            color: #fff;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #c82333;
-        }
+        /* ... your styles ... */
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -82,25 +14,52 @@
     <div id="cvcForm">
         <label for="cvcInput">Enter CVC:</label>
         <input type="password" id="cvcInput">
-        <button onclick="verifyCVC(document.getElementById('cvcInput').value)">Verify</button>
+        <button id="verifyButton">Verify</button> 
         <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
     </div>
     <div id="cardDetails"></div>
 <script>
-    function updateCardDetails() {
-        const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+    let cardData;
+    let cvcVerified = false;
+    let intervalId;
 
-        fetch(sheetUrl)
-            .then(response => response.json())
-            .then(data => {
-                console.log("Data fetched:", data);
-            })
-            .catch(error => {
-                console.error("Error fetching data:", error);
-            });
+    function getCardIdFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('cardId');
     }
 
+    function verifyCVC(enteredCVC) {
+        if (!cardData) {
+            console.error("cardData is undefined. Cannot verify CVC.");
+            return;
+        }
+
+        console.log("cardData:", cardData);
+
+        if (enteredCVC === cardData['CVC:'].toString()) {
+            document.getElementById('cvcForm').style.display = 'none';
+            document.getElementById('cardDetails').style.display = 'block';
+            displayCardDetails();
+            cvcVerified = true;
+            if (!intervalId) {
+                intervalId = setInterval(updateCardDetails, 2000);
+            }
+        } else {
+            document.getElementById('cvcError').style.display = 'block';
+        }
+    }
+
+    function updateCardDetails() {
+        // ... your updateCardDetails() code ...
+    }
+
+    // Call updateCardDetails() initially to fetch data
     updateCardDetails();
+
+    // Add event listener to the "Verify" button
+    document.getElementById('verifyButton').addEventListener('click', function() {
+        verifyCVC(document.getElementById('cvcInput').value);
+    });
 </script>
 </body>
 </html>
