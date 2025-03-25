@@ -148,6 +148,8 @@
                             <button onclick="verifyCVC(document.getElementById('cvcInput').value)">Verify</button>
                             <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
                         `;
+                        // Call verifyCVC() after data is fetched
+                        verifyCVC(document.getElementById('cvcInput').value);
                     }
                     document.getElementById('loading').style.display = 'none';
                     // ... rest of the code ...
