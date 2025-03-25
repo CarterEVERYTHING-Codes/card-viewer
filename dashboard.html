@@ -152,6 +152,7 @@
             }
 
             function displayCardDetails() {
+                console.log("displayCardDetails called, cardData:", cardData); //Add this line.
                 if (!cardData) {
                     document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
                     document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
