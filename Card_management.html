@@ -119,7 +119,6 @@
 
     function displayCardDetails() {
         if (!cardData) {
-             console.log(cardData); // Add this line
             document.getElementById('cardDetails').textContent = 'Card data not available.';
             return;
         }
@@ -132,4 +131,72 @@
             <div class="detail-item"><strong>Name on Card:</strong> ${cardData['Name on Card:']}</div>
             <div class="detail-item"><strong>PIN:</strong> ${cardData['PIN:']}</div>
             <div class="detail-item"><strong>Verification - 1 DTID:</strong> ${cardData['Verification - 1 DTID:']}</div>
-            <div class="detail-item"><strong>Verification Refused - 1 DTID:
+            <div class="detail-item"><strong>Verification Refused - 1 DTID:</strong> ${cardData['Verification Refused - 1 DTID:']}</div>
+            <div class="detail-item"><strong>Type:</strong> ${cardData['Type:']}</div>
+        `;
+
+        document.getElementById('cardDetails').innerHTML = detailsHtml;
+    }
+
+    function updateCardDetails() {
+        try {
+            if (!cardData) {
+                document.getElementById('loading').style.display = 'block';
+            }
+
+            const cardId = getCardIdFromUrl();
+            console.log("Card ID:", cardId); // Added console.log(cardId)
+
+            if (!cardId) {
+                document.getElementById('cardDetails').textContent = 'Card ID not provided.';
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+
+            const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+
+            fetch(sheetUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    cardData = data.find(item => item['Card Number:'] === cardId);
+                    if (cardData) {
+                        if (!cvcVerified) {
+                            document.getElementById('cvcForm').innerHTML = `
+                                <label for="cvcInput">Enter CVC:</label>
+                                <input type="password" id="cvcInput">
+                                <button id="verifyButton">Verify</button>
+                                <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
+                            `;
+                            document.getElementById('verifyButton').addEventListener('click', function() {
+                                verifyCVC(document.getElementById('cvcInput').value);
+                            });
+                        }
+                        document.getElementById('loading').style.display = 'none';
+                    } else {
+                        document.getElementById('cardDetails').textContent = 'Card not found.';
+                        document.getElementById('loading').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('cardDetails').textContent = 'Error loading card details.';
+                    document.getElementById('loading').style.display = 'none';
+                });
+        } catch (error) {
+            console.error("Error in updateCardDetails():", error); // Added try...catch block
+        }
+    }
+
+    updateCardDetails();
+
+    document.getElementById('verifyButton').addEventListener('click', function() {
+        verifyCVC(document.getElementById('cvcInput').value);
+    });
+</script>
+</body>
+</html>
