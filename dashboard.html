@@ -173,6 +173,11 @@
                     let transactions = cardData['Purchases:'].split(', ');
                     let transactionsHtml = '';
 
+                    // Move reportFraud() inside displayTransactions()
+                    function reportFraud() {
+                        window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
+                    }
+
                     transactions.forEach(transaction => {
                         transactionsHtml += `
                             <li>
@@ -210,17 +215,3 @@
                     .catch(error => {
                         document.getElementById('loadingScreen').style.display = 'none';
                         document.getElementById('errorMessage').textContent = 'Error loading data. Please try again.';
-                        document.getElementById('errorScreen').style.display = 'flex';
-                        console.error('Error fetching card data:', error);
-                        document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
-                        document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
-                    });
-            }
-
-            fetchCardData();
-
-            document.getElementById('reportFraudButton').addEventListener('click', reportFraud);
-        });
-    </script>
-</body>
-</html>
