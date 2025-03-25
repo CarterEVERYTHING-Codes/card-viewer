@@ -141,21 +141,20 @@
                 return urlParams.get('cardId');
             }
 
-            function displayCardDetails() {
-                if (!cardData) {
-                    document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
-                    return;
-                }
+function displayCardDetails() {
+    if (!cardData) {
+        document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
+        return;
+    }
 
-                let detailsHtml = `
-                    <li><strong>Card Number:</strong> ${cardData['Card Number:']}</li>
-                    <li><strong>Card Holder Name:</strong> ${cardData['Name on card:']}</li>
-                    <li><strong>Card Type:</strong> ${cardData['Type']}</li>
-                `;
+    let detailsHtml = `
+        <li><strong>Card Number:</strong> ${cardData['Card Number:']}</li>
+        <li><strong>Card Holder Name:</strong> ${cardData['Name on card:']}</li>
+        <li><strong>Card Type:</strong> ${cardData['Type:']}</li>
+    `;
 
-                document.getElementById('cardDetails').innerHTML = detailsHtml;
-            }
-
+    document.getElementById('cardDetails').innerHTML = detailsHtml;
+}
             function displayTransactions() {
                 if (cardData) {
                     let transactionsHtml = `<li>${cardData['Purchases:']}</li>`;
