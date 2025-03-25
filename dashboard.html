@@ -145,59 +145,62 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log("JavaScript is running!");
-            let cardData;
+            console.log("Calling fetchCardData()"); // Added to check if the function is called
+            fetchCardData();
+        });
 
-            function getCardIdFromUrl() {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('cardId');
+        function getCardIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('cardId');
+        }
+
+        function displayCardDetails() {
+            console.log("displayCardDetails called, cardData:", cardData);
+            if (!cardData) {
+                document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
+                document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
+                return;
             }
 
-            function displayCardDetails() {
-                console.log("displayCardDetails called, cardData:", cardData);
-                if (!cardData) {
-                    document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
-                    document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
-                    return;
+            let detailsHtml = `
+                <li><strong>Card Number:</strong> ${cardData['Card Number:']}</li>
+                <li><strong>Card Holder Name:</strong> ${cardData['Name on card:']}</li>
+                <li><strong>Card Type:</strong> ${cardData['Type:']}</li>
+            `;
+
+            document.getElementById('cardDetails').innerHTML = detailsHtml;
+            document.getElementById('balanceDisplay').textContent = `Balance: ${cardData['Card Balance:']} DigiCredits`;
+        }
+
+        function displayTransactions() {
+            console.log("displayTransactions called, cardData:", cardData);
+            if (cardData) {
+                let transactions = cardData['Purchases:'].split(', ');
+                let transactionsHtml = '';
+
+                function reportFraud() {
+                    window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
                 }
 
-                let detailsHtml = `
-                    <li><strong>Card Number:</strong> ${cardData['Card Number:']}</li>
-                    <li><strong>Card Holder Name:</strong> ${cardData['Name on card:']}</li>
-                    <li><strong>Card Type:</strong> ${cardData['Type:']}</li>
-                `;
+                transactions.forEach(transaction => {
+                    transactionsHtml += `
+                        <li>
+                            ${transaction}
+                            <button onclick="reportFraud()">Report Fraud</button>
+                        </li>
+                    `;
+                });
 
-                document.getElementById('cardDetails').innerHTML = detailsHtml;
-                document.getElementById('balanceDisplay').textContent = `Balance: ${cardData['Card Balance:']} DigiCredits`;
+                document.getElementById('transactionDetails').innerHTML = transactionsHtml;
             }
+        }
 
-            function displayTransactions() {
-                console.log("displayTransactions called, cardData:", cardData);
-                if (cardData) {
-                    let transactions = cardData['Purchases:'].split(', ');
-                    let transactionsHtml = '';
+        function reportFraud() {
+            window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
+        }
 
-                    function reportFraud() {
-                        window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
-                    }
-
-                    transactions.forEach(transaction => {
-                        transactionsHtml += `
-                            <li>
-                                ${transaction}
-                                <button onclick="reportFraud()">Report Fraud</button>
-                            </li>
-                        `;
-                    });
-
-                    document.getElementById('transactionDetails').innerHTML = transactionsHtml;
-                }
-            }
-
-            function reportFraud() {
-                window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
-            }
-
-            function fetchCardData() {
+        function fetchCardData() {
+            try {
                 document.getElementById('loadingScreen').style.display = 'flex';
                 const cardId = getCardIdFromUrl();
                 const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec';
@@ -212,5 +215,4 @@
                         cardData = data.find(item => item['Card Number:'] === cardId);
                         if (cardData) {
                             console.log("Card Data found:", cardData);
-                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
-                            displayCardDetails();
+                            document.getElementById
