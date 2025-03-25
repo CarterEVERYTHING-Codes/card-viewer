@@ -10,11 +10,24 @@
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
             min-height: 100vh;
         }
-        .dashboard-container, #cvcForm, #cardDetails, #transactionDetails, #securityOptions {
+        .dashboard-container {
+            position: fixed; /* Use fixed positioning */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center using transform */
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px; /* Set width */
+            max-width: 90%;
+            text-align: center;
+        }
+        #cvcForm, #cardDetails, #transactionDetails, #securityOptions {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -22,7 +35,7 @@
             width: 400px;
             max-width: 90%;
             margin-bottom: 20px;
-            text-align: center; /* Center the container content */
+            text-align: center;
         }
         h2 {
             margin-top: 0;
@@ -204,12 +217,4 @@
             updateFreezeStatus(this.checked ? 'Yes' : 'No');
         });
 
-        function fetchCardData() {
-            const cardId = getCardIdFromUrl();
-            const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
-
-            fetch(sheetUrl)
-                .then(response => response.json())
-                .then(data => {
-                    cardData = data.find(item => item['Card Number:'] === cardId);
-                    if (
+        function fetchCardData
