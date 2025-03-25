@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Card Dashboard</title>
+    <style>
+        /* Add your dashboard styles here */
+        body {
+            font-family: 'Josefin Sans', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .dashboard-container {
+            width: 500px;
+            max-width: 90%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2 id="welcomeMessage">Welcome!</h2>
+        <button onclick="viewCardDetails()">Card Details</button>
+        <button onclick="viewTransactions()">Recent Transactions</button>
+        <button onclick="viewSecurity()">Security</button>
+        <div id="securityOptions" style="display: none;">
+            <label class="toggle-switch">
+                <input type="checkbox" id="freezeToggle">
+                <span class="slider round"></span>
+            </label>
+            <button onclick="reportFraud()">Report Fraud</button>
+        </div>
+        <div id="transactionDetails" style="display: none;">
+        </div>
+    </div>
+    <script>
+        let cardData;
+
+        function getCardIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('cardId');
+        }
+
+        function viewCardDetails() {
+            const cardId = getCardIdFromUrl();
+            window.location.href = `card_management.html?cardId=${cardId}`;
+        }
+
+        function viewTransactions() {
+            const cardId = getCardIdFromUrl();
+            const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+
+            fetch(sheetUrl)
+                .then(response => response.json())
+                .then(data => {
+                    cardData = data.find(item => item['Card Number:'] === cardId);
+                    if (cardData) {
+                        let transactionsHtml = "<h2>Recent Transactions</h2>";
+                        transactionsHtml += "<ul>";
+                        for (let key in cardData) {
+                            if (key.startsWith("Transaction")) {
+                                transactionsHtml += `<li>${key}: ${cardData[key]}</li>`;
+                            }
+                        }
+                        transactionsHtml += "</ul>";
+                        transactionsHtml += '<button onclick="reportFraud()">Report Fraud</button>'
+                        document.getElementById('transactionDetails').innerHTML = transactionsHtml;
+                        document.getElementById('transactionDetails').style.display = 'block';
+                        document.getElementById('securityOptions').style.display = 'none';
+                    }
+                });
+        }
+
+        function viewSecurity() {
+            document.getElementById('securityOptions').style.display = 'block';
+            document.getElementById('transactionDetails').style.display = 'none';
+        }
+
+        function reportFraud() {
+            window.location.href = 'fraud_report.html'; // Replace with your fraud report form URL
+        }
+
+        function updateFreezeStatus(freeze) {
+            const cardId = getCardIdFromUrl();
+            const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+
+            fetch(sheetUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `cardId=<span class="math-inline">\{cardId\}&freeze\=</span>{freeze}`
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Freeze status updated successfully');
+                } else {
+                    console.error('Failed to update freeze status');
+                }
+            });
+        }
+
+        document.getElementById('freezeToggle').addEventListener('change', function() {
+            updateFreezeStatus(this.checked ? 'Yes' : 'No');
+        });
+
+        function fetchCardData() {
+            const cardId = getCardIdFromUrl();
+            const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J
