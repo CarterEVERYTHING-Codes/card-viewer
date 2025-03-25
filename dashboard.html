@@ -15,26 +15,12 @@
             min-height: 100vh;
         }
         .dashboard-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 400px;
             max-width: 90%;
-            text-align: center;
-        }
-        #cvcForm, #cardDetails, #transactionDetails, #securityOptions {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            max-width: 90%;
-            margin-bottom: 20px;
             text-align: center;
         }
         h2 {
@@ -52,13 +38,6 @@
         }
         button:hover {
             background-color: #0056b3;
-        }
-        #cvcInput {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 150px;
-            margin-top: 10px;
         }
         .detail-item {
             margin-bottom: 15px;
@@ -137,18 +116,26 @@
 <body>
     <div class="dashboard-container">
         <h2 id="welcomeMessage">Welcome!</h2>
-        <button onclick="viewCardDetails()">Card Details</button>
-        <button onclick="viewTransactions()">Recent Transactions</button>
-        <button onclick="viewSecurity()">Security</button>
-        <div id="securityOptions" style="display: none;">
+
+        <div id="cardDetailsSection">
+            <h2>Card Details</h2>
+            <div id="cardDetails"></div>
+        </div>
+
+        <div id="transactionsSection">
+            <h2>Recent Transactions</h2>
+            <div id="transactionDetails"></div>
+        </div>
+
+        <div id="securitySection">
+            <h2>Security Options</h2>
             <label class="toggle-switch">
                 <input type="checkbox" id="freezeToggle">
                 <span class="slider round"></span>
             </label>
-            <button onclick="reportFraud()">Report Fraud</button>
+            <button id="reportFraudButton">Report Fraud</button>
         </div>
-        <div id="transactionDetails" style="display: none;">
-        </div>
+
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -159,12 +146,54 @@
                 return urlParams.get('cardId');
             }
 
-            window.viewCardDetails = function() {
-                const cardId = getCardIdFromUrl();
-                window.location.href = `card_management.html?cardId=${cardId}`;
+            function displayCardDetails() {
+                if (!cardData) {
+                    document.getElementById('cardDetails').textContent = 'Card data not available.';
+                    return;
+                }
+
+                let detailsHtml = `
+                    <div class="detail-item"><strong>Card Number:</strong> ${cardData['Card Number:']}</div>
+                    <div class="detail-item"><strong>Card Balance:</strong> ${cardData['Card Balance:']}</div>
+                    <div class="detail-item"><strong>Frozen:</strong> ${cardData['Frozen:']}</div>
+                    <div class="detail-item"><strong>Name on Card:</strong> ${cardData['Name on card:']}</div>
+                    <div class="detail-item"><strong>CVC:</strong> ${cardData['CVC:']}</div>
+                    <div class="detail-item"><strong>Type:</strong> ${cardData['Type']}</div>
+                `;
+
+                document.getElementById('cardDetails').innerHTML = detailsHtml;
             }
 
-            window.viewTransactions = function() {
+            function displayTransactions() {
+                if (cardData) {
+                    let transactionsHtml = "<ul>";
+                    transactionsHtml += `<li>${cardData['Purchases:']}</li>`;
+                    transactionsHtml += "</ul>";
+                    document.getElementById('transactionDetails').innerHTML = transactionsHtml;
+                }
+            }
+
+            function updateFreezeStatus(freeze) {
+                const cardId = getCardIdFromUrl();
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+
+                fetch(sheetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `cardId=<span class="math-inline">\{cardId\}&freeze\=</span>{freeze}`
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Freeze status updated successfully');
+                    } else {
+                        console.error('Failed to update freeze status');
+                    }
+                });
+            }
+
+            function fetchCardData() {
                 const cardId = getCardIdFromUrl();
                 const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
 
@@ -173,27 +202,18 @@
                     .then(data => {
                         cardData = data.find(item => item['Card Number:'] === cardId);
                         if (cardData) {
-                            let transactionsHtml = "<h2>Recent Transactions</h2>";
-                            transactionsHtml += "<ul>";
-                            transactionsHtml += `<li>${cardData['Purchases:']}</li>`;
-                            transactionsHtml += "</ul>";
-                            transactionsHtml += '<button onclick="reportFraud()">Report Fraud</button>';
-                            document.getElementById('transactionDetails').innerHTML = transactionsHtml;
-                            document.getElementById('transactionDetails').style.display = 'block';
-                            document.getElementById('securityOptions').style.display = 'none';
+                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
+                            displayCardDetails();
+                            displayTransactions();
                         }
                     });
             }
 
-            window.viewSecurity = function() {
-                document.getElementById('securityOptions').style.display = 'block';
-                document.getElementById('transactionDetails').style.display = 'none';
-            }
+            fetchCardData();
 
-            window.reportFraud = function() {
-                window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header';
-            }
+            document.getElementById('freezeToggle').addEventListener('change', function() {
+                updateFreezeStatus(this.checked ? 'Yes' : 'No');
+            });
 
-            function updateFreezeStatus(freeze) {
-                const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+            document.getElementById('reportFraudButton').addEventListener('click', function() {
+                window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MA
