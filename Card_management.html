@@ -118,15 +118,48 @@
     }
 
     function updateCardDetails() {
+        if (!cardData) {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        const cardId = getCardIdFromUrl();
+        if (!cardId) {
+            document.getElementById('cardDetails').textContent = 'Card ID not provided.';
+            document.getElementById('loading').style.display = 'none';
+            return;
+        }
+
         const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
 
         fetch(sheetUrl)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
-                console.log("Data fetched:", data);
+                cardData = data.find(item => item['Card Number:'] === cardId); // Assign data to cardData
+                if (cardData) {
+                    if (!cvcVerified) {
+                        document.getElementById('cvcForm').innerHTML = `
+                            <label for="cvcInput">Enter CVC:</label>
+                            <input type="password" id="cvcInput">
+                            <button onclick="verifyCVC(document.getElementById('cvcInput').value)">Verify</button>
+                            <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
+                        `;
+                    }
+                    document.getElementById('loading').style.display = 'none';
+                    // ... rest of the code ...
+                } else {
+                    document.getElementById('cardDetails').textContent = 'Card not found.';
+                    document.getElementById('loading').style.display = 'none';
+                }
             })
             .catch(error => {
-                console.error("Error fetching data:", error);
+                console.error('Error fetching data:', error);
+                document.getElementById('cardDetails').textContent = 'Error loading card details.';
+                document.getElementById('loading').style.display = 'none';
             });
     }
 
