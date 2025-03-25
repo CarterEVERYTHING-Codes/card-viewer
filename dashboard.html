@@ -144,7 +144,7 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-                    console.log("JavaScript is running!"); // Add this line
+            console.log("JavaScript is running!"); // Added for debugging
             let cardData;
 
             function getCardIdFromUrl() {
@@ -153,7 +153,7 @@
             }
 
             function displayCardDetails() {
-                console.log("displayCardDetails called, cardData:", cardData); //Debugging
+                console.log("displayCardDetails called, cardData:", cardData); // Debugging
                 if (!cardData) {
                     document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
                     document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
@@ -171,12 +171,11 @@
             }
 
             function displayTransactions() {
-                console.log("displayTransactions called, cardData:", cardData); //Debugging
+                console.log("displayTransactions called, cardData:", cardData); // Debugging
                 if (cardData) {
                     let transactions = cardData['Purchases:'].split(', ');
                     let transactionsHtml = '';
 
-                    // Move reportFraud() inside displayTransactions()
                     function reportFraud() {
                         window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
                     }
@@ -202,19 +201,14 @@
                 document.getElementById('loadingScreen').style.display = 'flex';
                 const cardId = getCardIdFromUrl();
                 const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
-                console.log("Fetching data from:", sheetUrl); // Debugging: URL being fetched
-                console.log("Card ID being used:", cardId); // Debugging: Card ID being used
+                console.log("Fetching data from:", sheetUrl); // Debugging
+                console.log("Card ID being used:", cardId); // Debugging
 
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('loadingScreen').style.display = 'none';
-                        console.log("Raw data from Google Apps Script:", data); // Debugging: Raw data
+                        console.log("Raw data from Google Apps Script:", data); // Debugging
                         cardData = data.find(item => item['Card Number:'] === cardId);
                         if (cardData) {
-                            console.log("Card Data found:", cardData); // Debugging: Card data found
-                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
-                            displayCardDetails();
-                            displayTransactions();
-                        } else {
-                            console.log("Card
+                            console.log("Card Data found:", cardData); // Debugging
