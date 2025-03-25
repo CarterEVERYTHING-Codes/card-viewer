@@ -98,6 +98,7 @@
             width: 80px;
             height: 80px;
             margin-bottom: 20px;
+            transition: transform 0.5s ease-in-out; /* Slide transition */
         }
 
         #loadingScreen div, #errorScreen div {
@@ -115,7 +116,7 @@
 </head>
 <body>
     <div id="loadingScreen">
-        <img src="favicon.png" alt="Digi Logo">
+        <img src="favicon.png" alt="Digi Logo" id="loadingLogo">
         <div id="loadingWheel">Loading...</div>
     </div>
     <div id="errorScreen">
@@ -192,12 +193,17 @@
 
             function fetchCardData() {
                 document.getElementById('loadingScreen').style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('loadingLogo').style.transform = 'translateX(-100%)'; // Slide left
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').style.display = 'none';
+                    }, 500); // Wait for slide animation
+                }, 1500); // Show for 1.5 seconds
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec';
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById('loadingScreen').style.display = 'none';
                         console.log("Data from Google Apps Script:", data);
                         cardData = data.find(item => item['Card Number:'] === cardId);
                         if (cardData) {
@@ -214,13 +220,3 @@
                         console.error('Error fetching card data:', error);
                         document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
                         document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
-                    });
-            }
-
-            fetchCardData();
-
-            document.getElementById('reportFraudButton').addEventListener('click', reportFraud);
-        });
-    </script>
-</body>
-</html>
