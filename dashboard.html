@@ -127,7 +127,7 @@
             <img src="favicon.png" alt="Digi Logo" style="width: 50px; height: 50px;">
         </div>
         <div id="loadingWheel" style="display: none;">Loading...</div>
-        <h2 id="welcomeMessage">Welcome, Carter!</h2>
+        <h2 id="welcomeMessage">Welcome!</h2>
         <div id="balanceDisplay" class="balance-display"></div>
         <div class="section" id="cardDetailsSection">
             <h2>Card Details</h2>
@@ -193,7 +193,7 @@
             function fetchCardData() {
                 document.getElementById('loadingScreen').style.display = 'flex';
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'YOUR_CORRECT_URL'; // Replace with your actual URL
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
