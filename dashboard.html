@@ -103,10 +103,10 @@
             background-color: #0056b3;
         }
         .balance-display {
-          font-size: 2em;
-          font-weight: bold;
-          text-align: center;
-          margin-bottom: 10px;
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -174,30 +174,26 @@
             }
 
             function updateFreezeStatus(freeze) {
-    const cardId = getCardIdFromUrl();
-    const sheetUrl = 'https://script.google.com/macros/s/AKfycbzYdpESQVW2oj-EpTrHLqRiO2aVSE9L2cp-931vFIyBIDESGOslMVxrHQVZhuyIqbmo/exec';
+                const cardId = getCardIdFromUrl();
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzYdpESQVW2oj-EpTrHLqRiO2aVSE9L2cp-931vFIyBIDESGOslMVxrHQVZhuyIqbmo/exec';
 
-    console.log("Card ID:", cardId);
-    console.log("Freeze:", freeze);
+                console.log("Card ID:", cardId);
+                console.log("Freeze:", freeze);
 
-    fetch(sheetUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `action=updateFreeze&cardId=${cardId}&freeze=${freeze}` // Corrected body
-    })
-    .then(response => {
-        if (response.ok) {
-            console.log('Freeze status updated successfully');
-        } else {
-            console.error('Failed to update freeze status');
-        }
-    })
-    .catch(error => {
-        console.error('Error updating freeze status:', error);
-    });
-}
+                fetch(sheetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=updateFreeze&cardId=${cardId}&freeze=${freeze}` // CORRECTED LINE
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Freeze status updated successfully');
+                    } else {
+                        console.error('Failed to update freeze status');
+                    }
+                })
                 .catch(error => {
                     console.error('Error updating freeze status:', error);
                 });
@@ -205,7 +201,7 @@
 
             function fetchCardData() {
                 const cardId = getCardIdFromUrl();
-               const sheetUrl = 'https://script.google.com/macros/s/AKfycbzYdpESQVW2oj-EpTrHLqRiO2aVSE9L2cp-931vFIyBIDESGOslMVxrHQVZhuyIqbmo/exec';
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbzYdpESQVW2oj-EpTrHLqRiO2aVSE9L2cp-931vFIyBIDESGOslMVxrHQVZhuyIqbmo/exec';
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
@@ -226,4 +222,10 @@
             });
 
             document.getElementById('reportFraudButton').addEventListener('click', function() {
-                window.location.href =
+                window.location.href = ''; // Add your report fraud URL here
+            });
+
+        });
+    </script>
+</body>
+</html>
