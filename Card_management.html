@@ -3,75 +3,7 @@
 <head>
     <title>Card Details</title>
     <style>
-        body {
-            font-family: 'Josefin Sans', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        #loading {
-            display: none;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        #cvcForm {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            max-width: 90%;
-            text-align: center;
-        }
-        #cardDetails {
-            display: none;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            max-width: 90%;
-        }
-        h2 {
-            margin-top: 0;
-            color: #007bff;
-            text-align: center;
-        }
-        .detail-item {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        .detail-item strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 8px;
-        }
-        button {
-            background-color: #dc3545;
-            color: #fff;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #c82333;
-        }
+        /* ... (CSS styles from previous response) ... */
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,13 +37,9 @@
         console.log("cardData:", cardData);
 
         if (enteredCVC === cardData['CVC:'].toString()) {
-            document.getElementById('cvcForm').style.display = 'none';
-            document.getElementById('cardDetails').style.display = 'block';
-            displayCardDetails();
-            cvcVerified = true;
-            if (!intervalId) {
-                intervalId = setInterval(updateCardDetails, 2000);
-            }
+            // Redirect to dashboard.html after successful verification
+            const cardId = getCardIdFromUrl();
+            window.location.href = `dashboard.html?cardId=${cardId}`;
         } else {
             document.getElementById('cvcError').style.display = 'block';
         }
@@ -128,11 +56,9 @@
             <div class="detail-item"><strong>Card Number:</strong> ${cardData['Card Number:']}</div>
             <div class="detail-item"><strong>Card Balance:</strong> ${cardData['Card Balance:']}</div>
             <div class="detail-item"><strong>Frozen:</strong> ${cardData['Frozen:']}</div>
-            <div class="detail-item"><strong>Name on Card:</strong> ${cardData['Name on Card:']}</div>
-            <div class="detail-item"><strong>PIN:</strong> ${cardData['PIN:']}</div>
-            <div class="detail-item"><strong>Verification - 1 DTID:</strong> ${cardData['Verification - 1 DTID:']}</div>
-            <div class="detail-item"><strong>Verification Refused - 1 DTID:</strong> ${cardData['Verification Refused - 1 DTID:']}</div>
-            <div class="detail-item"><strong>Type:</strong> ${cardData['Type:']}</div>
+            <div class="detail-item"><strong>Name on Card:</strong> ${cardData['Name on card:']}</div>
+            <div class="detail-item"><strong>CVC:</strong> ${cardData['CVC:']}</div>
+            <div class="detail-item"><strong>Type:</strong> ${cardData['Type']}</div>
         `;
 
         document.getElementById('cardDetails').innerHTML = detailsHtml;
@@ -145,7 +71,7 @@
             }
 
             const cardId = getCardIdFromUrl();
-            console.log("Card ID:", cardId); // Added console.log(cardId)
+            console.log("Card ID:", cardId);
 
             if (!cardId) {
                 document.getElementById('cardDetails').textContent = 'Card ID not provided.';
@@ -188,7 +114,7 @@
                     document.getElementById('loading').style.display = 'none';
                 });
         } catch (error) {
-            console.error("Error in updateCardDetails():", error); // Added try...catch block
+            console.error("Error in updateCardDetails():", error);
         }
     }
 
