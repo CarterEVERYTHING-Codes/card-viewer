@@ -3,7 +3,81 @@
 <head>
     <title>Card Details</title>
     <style>
-        /* ... (CSS styles from previous response) ... */
+        body {
+            font-family: 'Josefin Sans', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #cvcForm {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            max-width: 90%;
+            text-align: center;
+        }
+        #cardDetails {
+            display: none;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            max-width: 90%;
+        }
+        h2 {
+            margin-top: 0;
+            color: #007bff;
+            text-align: center;
+        }
+        .detail-item {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .detail-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        button {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 10px 15px; /* Added padding */
+            border: none;
+            border-radius: 5px; /* Added border radius */
+            cursor: pointer;
+            margin-top: 10px; /* Added margin */
+        }
+        button:hover {
+            background-color: #c82333;
+        }
+        #cvcInput {
+            padding: 8px; /* Added padding */
+            border: 1px solid #ccc;
+            border-radius: 5px; /* Added border radius */
+            width: 150px; /* Added width */
+            margin-top: 10px; /* Added margin */
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
