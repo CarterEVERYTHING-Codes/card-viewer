@@ -76,6 +76,7 @@
             height: 100%;
             background-color: #121212;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1001;
@@ -84,6 +85,20 @@
         #loadingLogo {
             width: 180px;
             height: auto;
+            margin-bottom: 20px;
+        }
+        #loadingBarContainer {
+            width: 200px;
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #loadingBar {
+            width: 0%;
+            height: 100%;
+            background-color: #00bcd4;
+            transition: width 0.8s linear;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -93,6 +108,9 @@
 <body>
     <div id="loadingScreen">
         <img id="loadingLogo" src="favicon.png" alt="Loading Logo">
+        <div id="loadingBarContainer">
+            <div id="loadingBar"></div>
+        </div>
     </div>
     <div class="dashboard-container">
         <div id="loadingWheel" style="display: none;">Loading...</div>
@@ -162,7 +180,7 @@
             function fetchCardData() {
                 document.getElementById('loadingWheel').style.display = 'block';
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'YOUR_CORRECT_URL'; // Replace with your actual URL
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
@@ -190,13 +208,21 @@
 
             // Loading Screen Animation
             const loadingScreen = document.getElementById('loadingScreen');
-            setTimeout(() => {
-                loadingScreen.style.transform = 'translateX(-100%)';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 800);
-            }, 1300);
+            const loadingBar = document.getElementById('loadingBar');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                loadingBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loadingScreen.style.transform = 'translateX(-100%)';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 800);
+                    }, 300); // Small delay before sliding
+                }
+            }, 13);
         });
     </script>
-</body>
-</html>
