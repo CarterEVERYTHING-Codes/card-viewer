@@ -146,23 +146,19 @@
 
     <div class="dashboard-container" id="dashboard">
         <h2 id="welcomeMessage">Welcome, User!</h2>
-        <div id="balanceDisplay" class="balance-display">Balance: 0 DigiCredits</div>
+        <div id="balanceDisplay" class="balance-display">Balance: Loading...</div>
 
         <div class="section" id="cardDetailsSection">
             <h3>Card Details</h3>
             <ul id="cardDetails">
-                <li><strong>Card Number:</strong> XXXX-XXXX-XXXX</li>
-                <li><strong>Card Holder:</strong> John Doe</li>
-                <li><strong>Card Type:</strong> Virtual</li>
+                <li>Loading...</li>
             </ul>
         </div>
 
         <div class="section" id="transactionsSection">
             <h3>Recent Transactions</h3>
             <ul id="transactionDetails">
-                <li>Amazon - $25.99</li>
-                <li>Netflix - $15.99</li>
-                <li>Spotify - $9.99</li>
+                <li>Loading...</li>
             </ul>
         </div>
 
@@ -171,10 +167,53 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec';
+
+            function getCardIdFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('cardId');
+            }
+
+            function updateDashboard(data) {
+                if (!data) {
+                    document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
+                    document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
+                    return;
+                }
+
+                document.getElementById('welcomeMessage').textContent = `Welcome, ${data['Name on card:']}!`;
+                document.getElementById('balanceDisplay').textContent = `Balance: ${data['Card Balance:']} DigiCredits`;
+
+                let detailsHtml = `
+                    <li><strong>Card Number:</strong> ${data['Card Number:']}</li>
+                    <li><strong>Card Holder:</strong> ${data['Name on card:']}</li>
+                    <li><strong>Card Type:</strong> ${data['Type:']}</li>
+                `;
+                document.getElementById('cardDetails').innerHTML = detailsHtml;
+
+                let transactionsHtml = data['Purchases:'].split(', ').map(transaction => `<li>${transaction}</li>`).join('');
+                document.getElementById('transactionDetails').innerHTML = transactionsHtml;
+            }
+
+            function fetchCardData() {
+                const cardId = getCardIdFromUrl();
+                fetch(googleScriptUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        const cardData = data.find(item => item['Card Number:'] === cardId);
+                        updateDashboard(cardData);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching card data:', error);
+                        document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
+                    });
+            }
+
             function startLoadingAnimation() {
                 document.getElementById('loadingBar').style.width = '100%';
 
                 setTimeout(() => {
+                    fetchCardData();
                     document.getElementById('loadingScreen').style.transform = 'translateX(-100%)';
                     document.getElementById('dashboard').style.opacity = '1';
                 }, 1500);
