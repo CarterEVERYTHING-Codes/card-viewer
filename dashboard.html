@@ -52,7 +52,7 @@
             margin-top: 15px;
             border-radius: 6px;
             font-weight: 500;
-            transition: background-color 0.3s ease;
+            transition: background--color 0.3s ease;
         }
         button:hover {
             background-color: #0097a7;
@@ -144,10 +144,13 @@
 
             function getCardIdFromUrl() {
                 const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('cardId');
+                const cardId = urlParams.get('cardId');
+                console.log("Card ID from URL:", cardId); // Debugging
+                return cardId;
             }
 
             function displayCardDetails() {
+                console.log("Displaying card details..."); // Debugging
                 if (!cardData) {
                     document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
                     document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
@@ -165,6 +168,7 @@
             }
 
             function displayTransactions() {
+                console.log("Displaying transactions..."); // Debugging
                 if (cardData) {
                     let transactions = cardData['Purchases:'].split(', ');
                     let transactionsHtml = '';
@@ -183,45 +187,35 @@
             }
 
             function reportFraud() {
+                console.log("Reporting fraud..."); // Debugging
                 window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
             }
 
             function fetchCardData() {
+                console.log("Fetching card data..."); // Debugging
                 document.getElementById('loadingWheel').style.display = 'block';
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
+                const sheetUrl = 'YOUR_CORRECT_URL'; // Replace with your actual URL
+                console.log("Sheet URL:", sheetUrl); // Debugging
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
+                        console.log("Data from Google Apps Script:", data); // Debugging
                         document.getElementById('loadingWheel').style.display = 'none';
-                        console.log("Data from Google Apps Script:", data);
                         cardData = data.find(item => item['Card Number:'] === cardId);
                         if (cardData) {
-                            console.log("Card Data:", cardData);
+                            console.log("Card Data:", cardData); // Debugging
                             document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
                             displayCardDetails();
                             displayTransactions();
                         }
                     })
                     .catch(error => {
+                        console.error('Error fetching card data:', error); // Debugging
                         document.getElementById('loadingWheel').style.display = 'none';
-                        console.error('Error fetching card data:', error);
                         document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
                         document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
                     });
             }
 
-            document.getElementById('reportFraudButton').addEventListener('click', reportFraud);
-
-            // Loading Screen Animation
-            const loadingScreen = document.getElementById('loadingScreen');
-            const loadingBar = document.getElementById('loadingBar');
-
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 1;
-                loadingBar.style.width = progress + '%';
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        loadingScreen.
+            document.getElementById('reportFraudButton').addEventListener('click
