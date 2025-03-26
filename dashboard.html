@@ -22,6 +22,7 @@
             width: 600px;
             max-width: 95%;
             text-align: left;
+            position: relative;
         }
         h2 {
             margin-top: 0;
@@ -100,6 +101,13 @@
             background-color: #00bcd4;
             transition: width 0.8s linear;
         }
+        #dashboardLogo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 50px;
+            height: auto;
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,6 +121,7 @@
         </div>
     </div>
     <div class="dashboard-container">
+        <img id="dashboardLogo" src="favicon.png" alt="Dashboard Logo">
         <div id="loadingWheel" style="display: none;">Loading...</div>
         <h2 id="welcomeMessage">Welcome, Carter!</h2>
         <div id="balanceDisplay" class="balance-display"></div>
@@ -216,13 +225,4 @@
                 loadingBar.style.width = progress + '%';
                 if (progress >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => {
-                        loadingScreen.style.transform = 'translateX(-100%)';
-                        setTimeout(() => {
-                            loadingScreen.style.display = 'none';
-                        }, 800);
-                    }, 300); // Small delay before sliding
-                }
-            }, 13);
-        });
-    </script>
+                    setTimeout(() =>
