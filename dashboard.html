@@ -5,22 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Dashboard</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Montserrat', sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 
         body {
+            font-family: 'Montserrat', sans-serif;
             background-color: #121212;
             color: #e0e0e0;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+        }
+
+        .dashboard-container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 650px;
+            max-width: 95%;
+            position: relative;
+        }
+
+        h2 {
+            color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        button {
+            background-color: #00bcd4;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0097a7;
+        }
+
+        .balance-display {
+            font-size: 2em;
+            font-weight: 700;
+            text-align: center;
+            color: #ffc107;
+            margin-bottom: 20px;
         }
 
         /* Loading Screen */
@@ -36,21 +76,16 @@
             justify-content: center;
             align-items: center;
             z-index: 1001;
-            transition: transform 1s ease-in-out;
-        }
-
-        #loadingLogo {
-            width: 180px;
-            height: auto;
-            margin-bottom: 20px;
+            transition: transform 0.8s ease-in-out;
         }
 
         #loadingBarContainer {
             width: 200px;
-            height: 8px;
+            height: 10px;
             background-color: #333;
             border-radius: 5px;
             overflow: hidden;
+            margin-top: 15px;
         }
 
         #loadingBar {
@@ -60,166 +95,118 @@
             transition: width 1.5s linear;
         }
 
-        /* Dashboard */
-        .dashboard-container {
-            background-color: #1e1e1e;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            width: 600px;
-            max-width: 95%;
-            text-align: left;
-            position: relative;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        /* Platinum Features Section */
+        .platinum-section {
+            background: #292929;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
         }
 
-        h2 {
-            margin-top: 0;
-            color: #00bcd4;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 20px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-
-        button {
-            background-color: #00bcd4;
-            color: #fff;
-            padding: 12px 20px;
-            border: none;
-            cursor: pointer;
-            margin-top: 15px;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0097a7;
-        }
-
-        .balance-display {
-            font-size: 2.5em;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #ffc107;
-        }
-
-        #dashboardLogo {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 50px;
-            height: auto;
+        .warning {
+            color: #ff5252;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <!-- Loading Screen -->
     <div id="loadingScreen">
-        <img id="loadingLogo" src="favicon.png" alt="Loading Logo">
+        <img id="loadingLogo" src="favicon.png" alt="Loading Logo" width="120">
         <div id="loadingBarContainer">
             <div id="loadingBar"></div>
         </div>
     </div>
 
     <!-- Dashboard -->
-    <div class="dashboard-container">
-        <img id="dashboardLogo" src="favicon.png" alt="Dashboard Logo">
+    <div class="dashboard-container" style="display: none;">
         <h2 id="welcomeMessage">Welcome!</h2>
-        <div id="balanceDisplay" class="balance-display"></div>
+        <div class="balance-display" id="balanceDisplay">Balance: Loading...</div>
 
-        <div class="section" id="cardDetailsSection">
+        <div class="section">
             <h2>Card Details</h2>
-            <ul id="cardDetails"></ul>
+            <p id="cardDetails"></p>
         </div>
 
-        <div class="section" id="transactionsSection">
+        <div class="section" id="platinumFeatures" style="display: none;">
+            <h2>Platinum Features</h2>
+            <p id="cashback"></p>
+            <p id="creditScore"></p>
+            <p id="debtInfo"></p>
+        </div>
+
+        <div class="section">
             <h2>Recent Transactions</h2>
-            <ul id="transactionDetails"></ul>
-        </div>
-
-        <div class="section" id="securitySection">
-            <h2>Security Options</h2>
-            <button id="reportFraudButton">Report Fraud</button>
+            <ul id="transactions"></ul>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let cardData;
-            const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec';
+            const sheetURL = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with actual Google Apps Script URL
+            let previousCreditScore = localStorage.getItem('creditScore');
+            let previousCreditLimit = localStorage.getItem('creditLimit');
 
-            function getCardIdFromUrl() {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('cardId');
-            }
-
-            function displayCardDetails() {
-                if (!cardData) return;
-
-                let detailsHtml = `
-                    <li><strong>Card Number:</strong> ${cardData['Card Number:']}</li>
-                    <li><strong>Card Holder Name:</strong> ${cardData['Name on card:']}</li>
-                    <li><strong>Card Type:</strong> ${cardData['Type:']}</li>
-                    <li><strong>Card CVC:</strong> ${cardData['CVC:']}</li>
-                    <li><strong>Expires:</strong> ${cardData['Expires:']}</li>
-                `;
-
-                document.getElementById('cardDetails').innerHTML = detailsHtml;
-                document.getElementById('balanceDisplay').textContent = `Balance: ${cardData['Card Balance:']} DigiCredits`;
-            }
-
-            function displayTransactions() {
-                if (!cardData) return;
-
-                let transactions = cardData['Purchases:'] ? cardData['Purchases:'].split(', ') : ['No transactions'];
-                document.getElementById('transactionDetails').innerHTML = transactions.map(transaction => `<li>${transaction}</li>`).join('');
+            function getCardId() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('cardId');
             }
 
             function fetchCardData() {
-                const cardId = getCardIdFromUrl();
-                fetch(sheetUrl)
+                fetch(sheetURL)
                     .then(response => response.json())
                     .then(data => {
-                        cardData = data.find(item => item['Card Number:'] === cardId);
-                        if (cardData) {
-                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
-                            displayCardDetails();
-                            displayTransactions();
+                        let cardId = getCardId();
+                        let card = data.find(item => item['Card Number:'] === cardId);
+
+                        if (card) {
+                            document.getElementById('welcomeMessage').textContent = `Welcome, ${card['Name on card:']}!`;
+                            document.getElementById('balanceDisplay').textContent = `Balance: ${card['Card Balance:']} DigiCredits`;
+
+                            document.getElementById('cardDetails').innerHTML = `
+                                <strong>Card Number:</strong> ${card['Card Number:']}<br>
+                                <strong>Expiry:</strong> ${card['Expires:']}<br>
+                                <strong>CVC:</strong> ${card['CVC:']}
+                            `;
+
+                            if (card['Type:'] === 'Platinum') {
+                                document.getElementById('platinumFeatures').style.display = 'block';
+
+                                let maxDebt = parseFloat(card['Max Credit Debt'] || 0);
+                                let debt = parseFloat(card['Debt Due'] || 0);
+                                let debtWarning = debt >= maxDebt * 0.8 ? `<span class="warning">⚠️ Warning: High Debt!</span>` : '';
+
+                                document.getElementById('cashback').textContent = `Cashback: ${card['Cashback']}%`;
+                                document.getElementById('creditScore').textContent = `Credit Score: ${card['Credit Score']}`;
+                                document.getElementById('debtInfo').innerHTML = `Debt Due: ${debt} / ${maxDebt} DigiCredits ${debtWarning}`;
+
+                                // Check for credit score or limit improvements
+                                if (previousCreditScore && card['Credit Score'] > previousCreditScore) {
+                                    celebrate();
+                                }
+
+                                // Save current values for future comparisons
+                                localStorage.setItem('creditScore', card['Credit Score']);
+                                localStorage.setItem('creditLimit', card['Max Credit Debt']);
+                            }
                         }
-                    })
-                    .catch(error => console.error('Error fetching card data:', error));
+                    });
             }
 
-            // Simulate loading screen animation
-            setTimeout(() => {
-                document.getElementById('loadingBar').style.width = '100%';
-            }, 100);
+            function celebrate() {
+                alert('🎉 Congratulations! Your credit score or limit has improved!');
+            }
 
-            setTimeout(() => {
-                document.getElementById('loadingScreen').style.transform = 'translateX(-100%)';
-                document.querySelector('.dashboard-container').style.opacity = '1';
-                document.querySelector('.dashboard-container').style.transform = 'translateY(0)';
-                fetchCardData();
-            }, 1500);
+            function startLoading() {
+                document.getElementById('loadingBar').style.width = '100%';
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.transform = 'translateX(-100%)';
+                    document.querySelector('.dashboard-container').style.display = 'block';
+                }, 1500);
+            }
+
+            startLoading();
+            fetchCardData();
         });
     </script>
 </body>
