@@ -213,4 +213,5 @@
                     })
                     .catch(error => {
                         console.error('Error fetching card data:', error);
-                        document.getElementById('loadingWheel').style.display =
+                        document.getElementById('loadingWheel').style.display = 'none';
+                        document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>
