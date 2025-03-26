@@ -3,172 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="icon" href="favicon.png">
+    <title>DigiCard Dashboard</title>
     <style>
-        /* Dark Mode Styling */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
+            background-color: black;
             color: white;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: Arial, sans-serif;
+            text-align: center;
         }
         .container {
-            background-color: #1e1e1e;
+            width: 50%;
+            margin: auto;
+            background: #111;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-            width: 400px;
         }
         h1, h2 {
             color: cyan;
         }
         .balance {
-            font-size: 24px;
-            font-weight: bold;
             color: gold;
-        }
-        .card-details, .platinum-features {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid gray;
+            font-size: 1.5em;
         }
         .warning {
             color: red;
             font-weight: bold;
         }
+        #confetti {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Welcome, <span id="userName">User</span>!</h1>
-        <p class="balance">Balance: <span id="balance">Loading...</span> DigiCredits</p>
+<canvas id="confetti"></canvas>
 
-        <div class="card-details">
-            <h2>Card Details</h2>
-            <p><b>Card Number:</b> <span id="cardNumber"></span></p>
-            <p><b>Expiry:</b> <span id="expiryDate"></span></p>
-            <p><b>CVC:</b> <span id="cvc"></span></p>
-        </div>
+<div class="container">
+    <h1>Welcome, <span id="userName">User</span>!</h1>
+    <p class="balance">Balance: <span id="balance">Loading...</span> DigiCredits</p>
+    
+    <h2>Card Details</h2>
+    <p><strong>Card Number:</strong> <span id="cardNumber">Loading...</span></p>
+    <p><strong>Expiry:</strong> <span id="expiry">Loading...</span></p>
+    <p><strong>CVC:</strong> <span id="cvc">Loading...</span></p>
 
-        <div class="platinum-features" id="platinumSection" style="display: none;">
-            <h2>Platinum Features</h2>
-            <p><b>Cashback:</b> <span id="cashback">Loading...</span></p>
-            <p><b>Credit Score:</b> <span id="creditScore">Loading...</span></p>
-            <p><b>Debt Due:</b> <span id="debtDue">Loading...</span></p>
-            <p><b>Debt Due Date:</b> <span id="debtDueDate">Loading...</span></p>
-        </div>
+    <hr>
 
-        <p id="warningMessage" class="warning" style="display: none;"></p>
+    <div id="platinumFeatures" style="display: none;">
+        <h2>Platinum Features</h2>
+        <p><strong>Cashback:</strong> <span id="cashback">Loading...</span></p>
+        <p><strong>Credit Score:</strong> <span id="creditScore">Loading...</span></p>
+        <p><strong>Debt Due:</strong> <span id="debtDue">Loading...</span> / <span id="maxDebt">Loading...</span> DigiCredits</p>
+        <p><strong>Debt Due Date:</strong> <span id="debtDueDate">Loading...</span></p>
+        <p id="debtWarning" class="warning" style="display: none;">⚠ Warning: You're close to max debt!</p>
     </div>
 
-    <script>
-        // Fetch data from Google Sheets
-        async function fetchData() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const cardId = urlParams.get("cardId");
+    <hr>
 
-            if (!cardId) {
-                alert("No Card ID provided.");
-                return;
-            }
+    <h2>Recent Transactions</h2>
+    <ul id="transactions">Loading...</ul>
+</div>
 
-            try {
-                const response = await fetch(`https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec?cardId=${cardId}`);
-                const data = await response.json();
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cardId = urlParams.get("cardId");
 
-                // Set user details
-                document.getElementById("userName").innerText = data.name;
-                document.getElementById("balance").innerText = data.balance;
-                document.getElementById("cardNumber").innerText = data.cardNumber;
-                document.getElementById("expiryDate").innerText = data.expiry;
-                document.getElementById("cvc").innerText = data.cvc;
-
-                // Show Platinum features if card type is Platinum
-                if (data.type === "Platinum") {
-                    document.getElementById("platinumSection").style.display = "block";
-                    document.getElementById("cashback").innerText = data.cashback || "N/A";
-                    document.getElementById("creditScore").innerText = data.creditScore || "N/A";
-                    document.getElementById("debtDue").innerText = `${data.debtDue} / ${data.maxDebt} DigiCredits`;
-                    document.getElementById("debtDueDate").innerText = data.debtDueDate || "N/A";
-
-                    // Show warning if debt is near max limit
-                    if (data.debtDue >= data.maxDebt * 0.8) {
-                        document.getElementById("warningMessage").style.display = "block";
-                        document.getElementById("warningMessage").innerText = "⚠️ Warning: Your debt is nearing the limit!";
-                    }
-
-                    // Celebrate credit score improvement
-                    let lastCreditScore = localStorage.getItem("lastCreditScore");
-                    if (lastCreditScore && lastCreditScore < data.creditScore) {
-                        confettiCelebration();
-                        alert("🎉 Your credit score has improved!");
-                    } else if (lastCreditScore && lastCreditScore > data.creditScore) {
-                        alert("⚠️ Your credit score has worsened.");
-                    }
-                    localStorage.setItem("lastCreditScore", data.creditScore);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                alert("Failed to fetch card details.");
-            }
+        if (!cardId) {
+            alert("No Card ID Provided");
+            return;
         }
 
-        // Confetti effect when credit score improves
-        function confettiCelebration() {
-            const confettiCanvas = document.createElement("canvas");
-            confettiCanvas.style.position = "fixed";
-            confettiCanvas.style.top = "0";
-            confettiCanvas.style.left = "0";
+        fetch(`https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec?cardId=${cardId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched Data:", data);
+
+                if (!data || Object.keys(data).length === 0) {
+                    alert("No data found for this card.");
+                    return;
+                }
+
+                // General Card Details
+                document.getElementById("userName").innerText = data.Name || "User";
+                document.getElementById("balance").innerText = data.Balance || "0";
+                document.getElementById("cardNumber").innerText = data.CardNumber || "N/A";
+                document.getElementById("expiry").innerText = data.Expiry || "N/A";
+                document.getElementById("cvc").innerText = data.CVC || "N/A";
+
+                // Platinum Features
+                if (data.Tier === "Platinum") {
+                    document.getElementById("platinumFeatures").style.display = "block";
+                    document.getElementById("cashback").innerText = data.Cashback || "0";
+                    document.getElementById("creditScore").innerText = data.CreditScore || "N/A";
+                    document.getElementById("debtDue").innerText = data.DebtDue || "0";
+                    document.getElementById("maxDebt").innerText = data.MaxCreditDebt || "N/A";
+                    document.getElementById("debtDueDate").innerText = data.DebtDueDate || "N/A";
+
+                    // 🚨 Warning for High Debt
+                    if (parseFloat(data.DebtDue) >= 0.9 * parseFloat(data.MaxCreditDebt)) {
+                        document.getElementById("debtWarning").style.display = "block";
+                    }
+
+                    // 🎉 Celebration if Credit Score or Limit Improved
+                    let prevCreditScore = localStorage.getItem("prevCreditScore") || data.CreditScore;
+                    let prevCreditLimit = localStorage.getItem("prevCreditLimit") || data.MaxCreditDebt;
+
+                    if (parseFloat(data.CreditScore) > parseFloat(prevCreditScore) || 
+                        parseFloat(data.MaxCreditDebt) > parseFloat(prevCreditLimit)) {
+                        startConfetti();
+                        alert("🎉 Congrats! Your credit score or limit has improved!");
+                    }
+
+                    // Save new values
+                    localStorage.setItem("prevCreditScore", data.CreditScore);
+                    localStorage.setItem("prevCreditLimit", data.MaxCreditDebt);
+                }
+
+                // Recent Transactions
+                const transactionsList = document.getElementById("transactions");
+                transactionsList.innerHTML = ""; // Clear list
+                if (data.Transactions && data.Transactions.length > 0) {
+                    data.Transactions.forEach(tx => {
+                        let listItem = document.createElement("li");
+                        listItem.innerText = tx;
+                        transactionsList.appendChild(listItem);
+                    });
+                } else {
+                    transactionsList.innerText = "No recent transactions.";
+                }
+            })
+            .catch(error => console.error("Fetch error:", error));
+
+        // 🎉 Confetti Animation
+        function startConfetti() {
+            const confettiCanvas = document.getElementById("confetti");
+            const confettiCtx = confettiCanvas.getContext("2d");
+
             confettiCanvas.width = window.innerWidth;
             confettiCanvas.height = window.innerHeight;
-            document.body.appendChild(confettiCanvas);
 
-            const ctx = confettiCanvas.getContext("2d");
-            const confettiParticles = [];
-
+            let particles = [];
             for (let i = 0; i < 100; i++) {
-                confettiParticles.push({
+                particles.push({
                     x: Math.random() * confettiCanvas.width,
                     y: Math.random() * confettiCanvas.height,
-                    speedX: Math.random() * 5 - 2.5,
-                    speedY: Math.random() * 5 + 2,
-                    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-                    size: Math.random() * 5 + 2
+                    r: Math.random() * 4 + 1,
+                    d: Math.random() * 2 + 1,
                 });
             }
 
             function drawConfetti() {
-                ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-                confettiParticles.forEach((particle, index) => {
-                    ctx.fillStyle = particle.color;
-                    ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
-                    particle.y += particle.speedY;
-                    particle.x += particle.speedX;
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                confettiCtx.fillStyle = "gold";
 
-                    if (particle.y > confettiCanvas.height) {
-                        confettiParticles.splice(index, 1);
-                    }
+                particles.forEach(p => {
+                    confettiCtx.beginPath();
+                    confettiCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2, false);
+                    confettiCtx.fill();
+                    p.y += p.d;
+                    if (p.y > confettiCanvas.height) p.y = 0;
                 });
 
-                if (confettiParticles.length > 0) {
-                    requestAnimationFrame(drawConfetti);
-                } else {
-                    document.body.removeChild(confettiCanvas);
-                }
+                requestAnimationFrame(drawConfetti);
             }
 
             drawConfetti();
+            setTimeout(() => confettiCanvas.style.display = "none", 5000);
         }
-
-        // Run fetchData when the page loads
-        fetchData();
-    </script>
+    });
+</script>
 
 </body>
 </html>
