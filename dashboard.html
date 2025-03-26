@@ -5,67 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Dashboard</title>
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow: hidden;
         }
-        .dashboard-container {
-            background-color: #1e1e1e;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            width: 600px;
-            max-width: 95%;
-            text-align: left;
-            position: relative;
-        }
-        h2 {
-            margin-top: 0;
-            color: #00bcd4;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-        .section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 20px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-        button {
-            background-color: #00bcd4;
-            color: #fff;
-            padding: 12px 20px;
-            border: none;
-            cursor: pointer;
-            margin-top: 15px;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #0097a7;
-        }
-        .balance-display {
-            font-size: 2.5em;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #ffc107;
-        }
+
+        /* Loading Screen */
         #loadingScreen {
             position: fixed;
             top: 0;
@@ -78,32 +36,100 @@
             justify-content: center;
             align-items: center;
             z-index: 1001;
-            transition: opacity 0.8s ease-in-out;
+            transition: transform 1s ease-in-out;
         }
+
         #loadingLogo {
-            width: 180px;
-            height: auto;
+            width: 150px;
             margin-bottom: 20px;
         }
+
         #loadingBarContainer {
-            width: 200px;
-            height: 10px;
+            width: 250px;
+            height: 8px;
             background-color: #333;
-            border-radius: 5px;
+            border-radius: 4px;
             overflow: hidden;
         }
+
         #loadingBar {
             width: 0%;
             height: 100%;
-            background-color: #00bcd4;
-            transition: width 0.8s linear;
+            background: linear-gradient(90deg, #00bcd4, #0097a7);
+            transition: width 1.5s linear;
         }
-        #dashboardLogo {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 50px;
-            height: auto;
+
+        /* Dashboard Container */
+        .dashboard-container {
+            background: #1c1c1c;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #00bcd4;
+            margin-bottom: 10px;
+        }
+
+        .balance-display {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #ffc107;
+        }
+
+        .section {
+            background: #232323;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: left;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h3 {
+            font-size: 1.2em;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(90deg, #00bcd4, #0097a7);
+            color: #fff;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #0097a7, #007c91);
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,104 +144,43 @@
         </div>
     </div>
 
-    <div class="dashboard-container">
-        <img id="dashboardLogo" src="favicon.png" alt="Dashboard Logo">
-        <h2 id="welcomeMessage">Welcome!</h2>
-        <div id="balanceDisplay" class="balance-display"></div>
+    <div class="dashboard-container" id="dashboard">
+        <h2 id="welcomeMessage">Welcome, User!</h2>
+        <div id="balanceDisplay" class="balance-display">Balance: 0 DigiCredits</div>
+
         <div class="section" id="cardDetailsSection">
-            <h2>Card Details</h2>
-            <ul id="cardDetails"></ul>
+            <h3>Card Details</h3>
+            <ul id="cardDetails">
+                <li><strong>Card Number:</strong> XXXX-XXXX-XXXX</li>
+                <li><strong>Card Holder:</strong> John Doe</li>
+                <li><strong>Card Type:</strong> Virtual</li>
+            </ul>
         </div>
+
         <div class="section" id="transactionsSection">
-            <h2>Recent Transactions</h2>
-            <ul id="transactionDetails"></ul>
+            <h3>Recent Transactions</h3>
+            <ul id="transactionDetails">
+                <li>Amazon - $25.99</li>
+                <li>Netflix - $15.99</li>
+                <li>Spotify - $9.99</li>
+            </ul>
         </div>
-        <div class="section" id="securitySection">
-            <h2>Security Options</h2>
-            <button id="reportFraudButton">Report Fraud</button>
-        </div>
+
+        <button id="reportFraudButton">Report Fraud</button>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let cardData;
+            function startLoadingAnimation() {
+                document.getElementById('loadingBar').style.width = '100%';
 
-            function getCardIdFromUrl() {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('cardId');
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.transform = 'translateX(-100%)';
+                    document.getElementById('dashboard').style.opacity = '1';
+                }, 1500);
             }
 
-            function displayCardDetails() {
-                if (!cardData) {
-                    document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
-                    document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
-                    return;
-                }
-
-                document.getElementById('cardDetails').innerHTML = `
-                    <li><strong>Card Number:</strong> ${cardData['Card Number:'] || 'N/A'}</li>
-                    <li><strong>Card Holder Name:</strong> ${cardData['Name on card:'] || 'N/A'}</li>
-                    <li><strong>Card Type:</strong> ${cardData['Type:'] || 'N/A'}</li>
-                `;
-                document.getElementById('balanceDisplay').textContent = `Balance: ${cardData['Card Balance:'] || 'N/A'} DigiCredits`;
-            }
-
-            function displayTransactions() {
-                if (!cardData || !cardData['Purchases:']) {
-                    document.getElementById('transactionDetails').innerHTML = '<li>No transactions found.</li>';
-                    return;
-                }
-
-                let transactions = cardData['Purchases:'].split(', ');
-                let transactionsHtml = transactions.map(transaction => `
-                    <li>${transaction} 
-                        <button onclick="reportFraud()">Report Fraud</button>
-                    </li>
-                `).join('');
-
-                document.getElementById('transactionDetails').innerHTML = transactionsHtml;
-            }
-
-            function reportFraud() {
-                window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
-            }
-
-            async function fetchCardData() {
-                const cardId = getCardIdFromUrl();
-                if (!cardId) {
-                    document.getElementById('cardDetails').innerHTML = '<li>Error: No card ID provided.</li>';
-                    hideLoadingScreen();
-                    return;
-                }
-
-                try {
-                    const sheetUrl = `https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec?cardId=${cardId}`;
-                    let response = await fetch(sheetUrl);
-                    let data = await response.json();
-
-                    cardData = data.find(item => item['Card Number:'] === cardId);
-
-                    if (cardData) {
-                        document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
-                        displayCardDetails();
-                        displayTransactions();
-                    } else {
-                        document.getElementById('cardDetails').innerHTML = '<li>Error: Card not found.</li>';
-                    }
-                } catch (error) {
-                    console.error('Error fetching card data:', error);
-                    document.getElementById('cardDetails').innerHTML = '<li>Error loading card data. Please try again later.</li>';
-                } finally {
-                    hideLoadingScreen();
-                }
-            }
-
-            function hideLoadingScreen() {
-                document.getElementById('loadingScreen').style.opacity = '0';
-                setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 800);
-            }
-
-            fetchCardData();
+            startLoadingAnimation();
         });
     </script>
 </body>
