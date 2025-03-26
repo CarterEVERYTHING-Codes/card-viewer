@@ -52,7 +52,7 @@
             margin-top: 15px;
             border-radius: 6px;
             font-weight: 500;
-            transition: background--color 0.3s ease;
+            transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #0097a7;
@@ -139,19 +139,19 @@
         </div>
     </div>
     <script>
-            console.log("JavaScript code is running!"); // Add this line
+        console.log("JavaScript code is running!");
         document.addEventListener('DOMContentLoaded', function() {
             let cardData;
 
             function getCardIdFromUrl() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const cardId = urlParams.get('cardId');
-                console.log("Card ID from URL:", cardId); // Debugging
+                console.log("Card ID from URL:", cardId);
                 return cardId;
             }
 
             function displayCardDetails() {
-                console.log("Displaying card details..."); // Debugging
+                console.log("Displaying card details...");
                 if (!cardData) {
                     document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
                     document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
@@ -169,7 +169,7 @@
             }
 
             function displayTransactions() {
-                console.log("Displaying transactions..."); // Debugging
+                console.log("Displaying transactions...");
                 if (cardData) {
                     let transactions = cardData['Purchases:'].split(', ');
                     let transactionsHtml = '';
@@ -188,35 +188,29 @@
             }
 
             function reportFraud() {
-                console.log("Reporting fraud..."); // Debugging
+                console.log("Reporting fraud...");
                 window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
             }
 
             function fetchCardData() {
-                console.log("Fetching card data..."); // Debugging
+                console.log("Fetching card data...");
                 document.getElementById('loadingWheel').style.display = 'block';
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
-                console.log("Sheet URL:", sheetUrl); // Debugging
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec';
+                console.log("Sheet URL:", sheetUrl);
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
-                        console.log("Data from Google Apps Script:", data); // Debugging
+                        console.log("Data from Google Apps Script:", data);
                         document.getElementById('loadingWheel').style.display = 'none';
                         cardData = data.find(item => item['Card Number:'] === cardId);
                         if (cardData) {
-                            console.log("Card Data:", cardData); // Debugging
+                            console.log("Card Data:", cardData);
                             document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
                             displayCardDetails();
                             displayTransactions();
                         }
                     })
                     .catch(error => {
-                        console.error('Error fetching card data:', error); // Debugging
-                        document.getElementById('loadingWheel').style.display = 'none';
-                        document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
-                        document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
-                    });
-            }
-
-            document.getElementById('reportFraudButton').addEventListener('click
+                        console.error('Error fetching card data:', error);
+                        document.getElementById('loadingWheel').style.display =
