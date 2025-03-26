@@ -1,55 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Dashboard</title>
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+        
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
-        .dashboard-container {
-            background-color: #1e1e1e;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            width: 600px;
-            max-width: 95%;
-            text-align: left;
-            position: relative;
-        }
-        h2 {
-            color: #00bcd4;
-        }
-        .section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 20px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        button {
-            background-color: #00bcd4;
-            color: #fff;
-            padding: 12px 20px;
-            border: none;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-        .balance-display {
-            font-size: 2.5em;
-            font-weight: 700;
-            text-align: center;
-            color: #ffc107;
-        }
+
+        /* Loading Screen */
         #loadingScreen {
             position: fixed;
             top: 0;
@@ -64,61 +38,189 @@
             z-index: 1001;
             transition: transform 1s ease-in-out;
         }
+
+        #loadingLogo {
+            width: 180px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        #loadingBarContainer {
+            width: 200px;
+            height: 8px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #loadingBar {
+            width: 0%;
+            height: 100%;
+            background-color: #00bcd4;
+            transition: width 1.5s linear;
+        }
+
+        /* Dashboard */
+        .dashboard-container {
+            background-color: #1e1e1e;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 600px;
+            max-width: 95%;
+            text-align: left;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #00bcd4;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        button {
+            background-color: #00bcd4;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0097a7;
+        }
+
+        .balance-display {
+            font-size: 2.5em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffc107;
+        }
+
+        #dashboardLogo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 50px;
+            height: auto;
+        }
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
     <div id="loadingScreen">
         <img id="loadingLogo" src="favicon.png" alt="Loading Logo">
-        <div id="loadingBar" style="width: 0%; height: 10px; background-color: #00bcd4;"></div>
-    </div>
-    <div class="dashboard-container" style="display: none;">
-        <h2>Welcome, <span id="cardHolderName"></span>!</h2>
-        <div class="balance-display" id="balanceDisplay"></div>
-        <div class="section">
-            <h2>Card Details</h2>
-            <ul>
-                <li><strong>Card Number:</strong> <span id="cardNumber"></span></li>
-                <li><strong>Card Type:</strong> <span id="cardType"></span></li>
-                <li><strong>CVC:</strong> <span id="cardCVC"></span></li>
-                <li><strong>Expires:</strong> <span id="cardExpiry"></span></li>
-            </ul>
+        <div id="loadingBarContainer">
+            <div id="loadingBar"></div>
         </div>
     </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-container">
+        <img id="dashboardLogo" src="favicon.png" alt="Dashboard Logo">
+        <h2 id="welcomeMessage">Welcome!</h2>
+        <div id="balanceDisplay" class="balance-display"></div>
+
+        <div class="section" id="cardDetailsSection">
+            <h2>Card Details</h2>
+            <ul id="cardDetails"></ul>
+        </div>
+
+        <div class="section" id="transactionsSection">
+            <h2>Recent Transactions</h2>
+            <ul id="transactionDetails"></ul>
+        </div>
+
+        <div class="section" id="securitySection">
+            <h2>Security Options</h2>
+            <button id="reportFraudButton">Report Fraud</button>
+        </div>
+    </div>
+
     <script>
-        function getCardIdFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('cardId');
-        }
-        function fetchCardData() {
-            const sheetUrl = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
-            fetch(sheetUrl)
-                .then(response => response.json())
-                .then(data => {
-                    const cardId = getCardIdFromUrl();
-                    const cardData = data.find(item => item['Card Number:'] === cardId);
-                    if (cardData) {
-                        document.getElementById('cardHolderName').textContent = cardData['Name on card:'];
-                        document.getElementById('cardNumber').textContent = cardData['Card Number:'];
-                        document.getElementById('cardType').textContent = cardData['Type:'];
-                        document.getElementById('cardCVC').textContent = cardData['CVC:'];
-                        document.getElementById('cardExpiry').textContent = cardData['Expires:'];
-                        document.getElementById('balanceDisplay').textContent = `Balance: ${cardData['Card Balance:']} DigiCredits`;
-                    }
-                    document.getElementById('loadingScreen').style.transform = 'translateX(-100%)';
-                    setTimeout(() => {
-                        document.getElementById('loadingScreen').style.display = 'none';
-                        document.querySelector('.dashboard-container').style.display = 'block';
-                    }, 1000);
-                })
-                .catch(error => console.error('Error fetching card data:', error));
-        }
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
+            let cardData;
+            const sheetUrl = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec';
+
+            function getCardIdFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('cardId');
+            }
+
+            function displayCardDetails() {
+                if (!cardData) return;
+
+                let detailsHtml = `
+                    <li><strong>Card Number:</strong> ${cardData['Card Number:']}</li>
+                    <li><strong>Card Holder Name:</strong> ${cardData['Name on card:']}</li>
+                    <li><strong>Card Type:</strong> ${cardData['Type:']}</li>
+                    <li><strong>Card CVC:</strong> ${cardData['CVC:']}</li>
+                    <li><strong>Expires:</strong> ${cardData['Expires:']}</li>
+                `;
+
+                document.getElementById('cardDetails').innerHTML = detailsHtml;
+                document.getElementById('balanceDisplay').textContent = `Balance: ${cardData['Card Balance:']} DigiCredits`;
+            }
+
+            function displayTransactions() {
+                if (!cardData) return;
+
+                let transactions = cardData['Purchases:'] ? cardData['Purchases:'].split(', ') : ['No transactions'];
+                document.getElementById('transactionDetails').innerHTML = transactions.map(transaction => `<li>${transaction}</li>`).join('');
+            }
+
+            function fetchCardData() {
+                const cardId = getCardIdFromUrl();
+                fetch(sheetUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        cardData = data.find(item => item['Card Number:'] === cardId);
+                        if (cardData) {
+                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
+                            displayCardDetails();
+                            displayTransactions();
+                        }
+                    })
+                    .catch(error => console.error('Error fetching card data:', error));
+            }
+
+            // Simulate loading screen animation
             setTimeout(() => {
                 document.getElementById('loadingBar').style.width = '100%';
+            }, 100);
+
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.transform = 'translateX(-100%)';
+                document.querySelector('.dashboard-container').style.opacity = '1';
+                document.querySelector('.dashboard-container').style.transform = 'translateY(0)';
                 fetchCardData();
-            }, 500);
+            }, 1500);
         });
     </script>
 </body>
 </html>
-
