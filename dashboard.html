@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Dashboard</title>
     <style>
         body {
@@ -64,11 +66,6 @@
             margin-bottom: 20px;
             color: #ffc107;
         }
-        #loadingWheel {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #e0e0e0;
-        }
         #loadingScreen {
             position: fixed;
             top: 0;
@@ -81,7 +78,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1001;
-            transition: transform 0.8s ease-in-out;
+            transition: opacity 0.8s ease-in-out;
         }
         #loadingLogo {
             width: 180px;
@@ -120,10 +117,10 @@
             <div id="loadingBar"></div>
         </div>
     </div>
+
     <div class="dashboard-container">
         <img id="dashboardLogo" src="favicon.png" alt="Dashboard Logo">
-        <div id="loadingWheel" style="display: none;">Loading...</div>
-        <h2 id="welcomeMessage">Welcome, Carter!</h2>
+        <h2 id="welcomeMessage">Welcome!</h2>
         <div id="balanceDisplay" class="balance-display"></div>
         <div class="section" id="cardDetailsSection">
             <h2>Card Details</h2>
@@ -138,80 +135,88 @@
             <button id="reportFraudButton">Report Fraud</button>
         </div>
     </div>
+
     <script>
-        console.log("JavaScript code is running!");
         document.addEventListener('DOMContentLoaded', function() {
             let cardData;
 
             function getCardIdFromUrl() {
                 const urlParams = new URLSearchParams(window.location.search);
-                const cardId = urlParams.get('cardId');
-                console.log("Card ID from URL:", cardId);
-                return cardId;
+                return urlParams.get('cardId');
             }
 
             function displayCardDetails() {
-                console.log("Displaying card details...");
                 if (!cardData) {
                     document.getElementById('cardDetails').innerHTML = '<li>Card data not available.</li>';
                     document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
                     return;
                 }
 
-                let detailsHtml = `
-                    <li><strong>Card Number:</strong> ${cardData['Card Number:']}</li>
-                    <li><strong>Card Holder Name:</strong> ${cardData['Name on card:']}</li>
-                    <li><strong>Card Type:</strong> ${cardData['Type:']}</li>
+                document.getElementById('cardDetails').innerHTML = `
+                    <li><strong>Card Number:</strong> ${cardData['Card Number:'] || 'N/A'}</li>
+                    <li><strong>Card Holder Name:</strong> ${cardData['Name on card:'] || 'N/A'}</li>
+                    <li><strong>Card Type:</strong> ${cardData['Type:'] || 'N/A'}</li>
                 `;
-
-                document.getElementById('cardDetails').innerHTML = detailsHtml;
-                document.getElementById('balanceDisplay').textContent = `Balance: ${cardData['Card Balance:']} DigiCredits`;
+                document.getElementById('balanceDisplay').textContent = `Balance: ${cardData['Card Balance:'] || 'N/A'} DigiCredits`;
             }
 
             function displayTransactions() {
-                console.log("Displaying transactions...");
-                if (cardData) {
-                    let transactions = cardData['Purchases:'].split(', ');
-                    let transactionsHtml = '';
-
-                    transactions.forEach(transaction => {
-                        transactionsHtml += `
-                            <li>
-                                ${transaction}
-                                <button onclick="reportFraud()">Report Fraud</button>
-                            </li>
-                        `;
-                    });
-
-                    document.getElementById('transactionDetails').innerHTML = transactionsHtml;
+                if (!cardData || !cardData['Purchases:']) {
+                    document.getElementById('transactionDetails').innerHTML = '<li>No transactions found.</li>';
+                    return;
                 }
+
+                let transactions = cardData['Purchases:'].split(', ');
+                let transactionsHtml = transactions.map(transaction => `
+                    <li>${transaction} 
+                        <button onclick="reportFraud()">Report Fraud</button>
+                    </li>
+                `).join('');
+
+                document.getElementById('transactionDetails').innerHTML = transactionsHtml;
             }
 
             function reportFraud() {
-                console.log("Reporting fraud...");
                 window.open('https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header', '_blank');
             }
 
-            function fetchCardData() {
-                console.log("Fetching card data...");
-                document.getElementById('loadingWheel').style.display = 'block';
+            async function fetchCardData() {
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec';
-                console.log("Sheet URL:", sheetUrl);
-                fetch(sheetUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("Data from Google Apps Script:", data);
-                        document.getElementById('loadingWheel').style.display = 'none';
-                        cardData = data.find(item => item['Card Number:'] === cardId);
-                        if (cardData) {
-                            console.log("Card Data:", cardData);
-                            document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
-                            displayCardDetails();
-                            displayTransactions();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching card data:', error);
-                        document.getElementById('loadingWheel').style.display = 'none';
-                        document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>
+                if (!cardId) {
+                    document.getElementById('cardDetails').innerHTML = '<li>Error: No card ID provided.</li>';
+                    hideLoadingScreen();
+                    return;
+                }
+
+                try {
+                    const sheetUrl = `https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?cardId=${cardId}`;
+                    let response = await fetch(sheetUrl);
+                    let data = await response.json();
+
+                    cardData = data.find(item => item['Card Number:'] === cardId);
+
+                    if (cardData) {
+                        document.getElementById('welcomeMessage').textContent = `Welcome, ${cardData['Name on card:']}!`;
+                        displayCardDetails();
+                        displayTransactions();
+                    } else {
+                        document.getElementById('cardDetails').innerHTML = '<li>Error: Card not found.</li>';
+                    }
+                } catch (error) {
+                    console.error('Error fetching card data:', error);
+                    document.getElementById('cardDetails').innerHTML = '<li>Error loading card data. Please try again later.</li>';
+                } finally {
+                    hideLoadingScreen();
+                }
+            }
+
+            function hideLoadingScreen() {
+                document.getElementById('loadingScreen').style.opacity = '0';
+                setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 800);
+            }
+
+            fetchCardData();
+        });
+    </script>
+</body>
+</html>
