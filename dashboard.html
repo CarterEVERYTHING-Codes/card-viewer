@@ -189,7 +189,7 @@
             function fetchCardData() {
                 document.getElementById('loadingWheel').style.display = 'block';
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'YOUR_CORRECT_URL'; // Replace with your actual URL
+                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
