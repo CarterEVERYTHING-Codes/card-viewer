@@ -3,179 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigiCard Dashboard</title>
+    <title>Card Dashboard</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
         body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 650px;
+            max-width: 95%;
+            position: relative;
+        }
+
+        h2 {
+            color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        button {
+            background-color: #00bcd4;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0097a7;
+        }
+
+        .balance-display {
+            font-size: 2em;
+            font-weight: 700;
             text-align: center;
+            color: #ffc107;
+            margin-bottom: 20px;
         }
-        .container {
-            width: 50%;
-            margin: auto;
-            background: #111;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        h1, h2 {
-            color: cyan;
-        }
-        .balance {
-            color: gold;
-            font-size: 1.5em;
-        }
-        .warning {
-            color: red;
-            font-weight: bold;
-        }
-        #confetti {
-            position: absolute;
+
+        /* Loading Screen */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
+            background-color: #121212;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            transition: transform 0.8s ease-in-out;
+        }
+
+        #loadingBarContainer {
+            width: 200px;
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        #loadingBar {
+            width: 0%;
+            height: 100%;
+            background-color: #00bcd4;
+            transition: width 1.5s linear;
+        }
+
+        /* Platinum Features Section */
+        .platinum-section {
+            background: #292929;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .warning {
+            color: #ff5252;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-
-<canvas id="confetti"></canvas>
-
-<div class="container">
-    <h1>Welcome, <span id="userName">User</span>!</h1>
-    <p class="balance">Balance: <span id="balance">Loading...</span> DigiCredits</p>
-    
-    <h2>Card Details</h2>
-    <p><strong>Card Number:</strong> <span id="cardNumber">Loading...</span></p>
-    <p><strong>Expiry:</strong> <span id="expiry">Loading...</span></p>
-    <p><strong>CVC:</strong> <span id="cvc">Loading...</span></p>
-
-    <hr>
-
-    <div id="platinumFeatures" style="display: none;">
-        <h2>Platinum Features</h2>
-        <p><strong>Cashback:</strong> <span id="cashback">Loading...</span></p>
-        <p><strong>Credit Score:</strong> <span id="creditScore">Loading...</span></p>
-        <p><strong>Debt Due:</strong> <span id="debtDue">Loading...</span> / <span id="maxDebt">Loading...</span> DigiCredits</p>
-        <p><strong>Debt Due Date:</strong> <span id="debtDueDate">Loading...</span></p>
-        <p id="debtWarning" class="warning" style="display: none;">⚠ Warning: You're close to max debt!</p>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <img id="loadingLogo" src="favicon.png" alt="Loading Logo" width="120">
+        <div id="loadingBarContainer">
+            <div id="loadingBar"></div>
+        </div>
     </div>
 
-    <hr>
+    <!-- Dashboard -->
+    <div class="dashboard-container" style="display: none;">
+        <h2 id="welcomeMessage">Welcome!</h2>
+        <div class="balance-display" id="balanceDisplay">Balance: Loading...</div>
 
-    <h2>Recent Transactions</h2>
-    <ul id="transactions">Loading...</ul>
-</div>
+        <div class="section">
+            <h2>Card Details</h2>
+            <p id="cardDetails"></p>
+        </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        const cardId = urlParams.get("cardId");
+        <div class="section" id="platinumFeatures" style="display: none;">
+            <h2>Platinum Features</h2>
+            <p id="cashback"></p>
+            <p id="creditScore"></p>
+            <p id="debtInfo"></p>
+        </div>
 
-        if (!cardId) {
-            alert("No Card ID Provided");
-            return;
-        }
+        <div class="section">
+            <h2>Recent Transactions</h2>
+            <ul id="transactions"></ul>
+        </div>
+    </div>
 
-        fetch(`https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec?cardId=${cardId}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log("Fetched Data:", data);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sheetURL = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with actual Google Apps Script URL
+            let previousCreditScore = localStorage.getItem('creditScore');
+            let previousCreditLimit = localStorage.getItem('creditLimit');
 
-                if (!data || Object.keys(data).length === 0) {
-                    alert("No data found for this card.");
-                    return;
-                }
+            function getCardId() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('cardId');
+            }
 
-                // General Card Details
-                document.getElementById("userName").innerText = data.Name || "User";
-                document.getElementById("balance").innerText = data.Balance || "0";
-                document.getElementById("cardNumber").innerText = data.CardNumber || "N/A";
-                document.getElementById("expiry").innerText = data.Expiry || "N/A";
-                document.getElementById("cvc").innerText = data.CVC || "N/A";
+            function fetchCardData() {
+                fetch(sheetURL)
+                    .then(response => response.json())
+                    .then(data => {
+                        let cardId = getCardId();
+                        let card = data.find(item => item['Card Number:'] === cardId);
 
-                // Platinum Features
-                if (data.Tier === "Platinum") {
-                    document.getElementById("platinumFeatures").style.display = "block";
-                    document.getElementById("cashback").innerText = data.Cashback || "0";
-                    document.getElementById("creditScore").innerText = data.CreditScore || "N/A";
-                    document.getElementById("debtDue").innerText = data.DebtDue || "0";
-                    document.getElementById("maxDebt").innerText = data.MaxCreditDebt || "N/A";
-                    document.getElementById("debtDueDate").innerText = data.DebtDueDate || "N/A";
+                        if (card) {
+                            document.getElementById('welcomeMessage').textContent = `Welcome, ${card['Name on card:']}!`;
+                            document.getElementById('balanceDisplay').textContent = `Balance: ${card['Card Balance:']} DigiCredits`;
 
-                    // 🚨 Warning for High Debt
-                    if (parseFloat(data.DebtDue) >= 0.9 * parseFloat(data.MaxCreditDebt)) {
-                        document.getElementById("debtWarning").style.display = "block";
-                    }
+                            document.getElementById('cardDetails').innerHTML = `
+                                <strong>Card Number:</strong> ${card['Card Number:']}<br>
+                                <strong>Expiry:</strong> ${card['Expires:']}<br>
+                                <strong>CVC:</strong> ${card['CVC:']}
+                            `;
 
-                    // 🎉 Celebration if Credit Score or Limit Improved
-                    let prevCreditScore = localStorage.getItem("prevCreditScore") || data.CreditScore;
-                    let prevCreditLimit = localStorage.getItem("prevCreditLimit") || data.MaxCreditDebt;
+                            if (card['Type:'] === 'Platinum') {
+                                document.getElementById('platinumFeatures').style.display = 'block';
 
-                    if (parseFloat(data.CreditScore) > parseFloat(prevCreditScore) || 
-                        parseFloat(data.MaxCreditDebt) > parseFloat(prevCreditLimit)) {
-                        startConfetti();
-                        alert("🎉 Congrats! Your credit score or limit has improved!");
-                    }
+                                let maxDebt = parseFloat(card['Max Credit Debt'] || 0);
+                                let debt = parseFloat(card['Debt Due'] || 0);
+                                let debtWarning = debt >= maxDebt * 0.8 ? `<span class="warning">⚠️ Warning: High Debt!</span>` : '';
 
-                    // Save new values
-                    localStorage.setItem("prevCreditScore", data.CreditScore);
-                    localStorage.setItem("prevCreditLimit", data.MaxCreditDebt);
-                }
+                                document.getElementById('cashback').textContent = `Cashback: ${card['Cashback']}%`;
+                                document.getElementById('creditScore').textContent = `Credit Score: ${card['Credit Score']}`;
+                                document.getElementById('debtInfo').innerHTML = `Debt Due: ${debt} / ${maxDebt} DigiCredits ${debtWarning}`;
 
-                // Recent Transactions
-                const transactionsList = document.getElementById("transactions");
-                transactionsList.innerHTML = ""; // Clear list
-                if (data.Transactions && data.Transactions.length > 0) {
-                    data.Transactions.forEach(tx => {
-                        let listItem = document.createElement("li");
-                        listItem.innerText = tx;
-                        transactionsList.appendChild(listItem);
+                                // Check for credit score or limit improvements
+                                if (previousCreditScore && card['Credit Score'] > previousCreditScore) {
+                                    celebrate();
+                                }
+
+                                // Save current values for future comparisons
+                                localStorage.setItem('creditScore', card['Credit Score']);
+                                localStorage.setItem('creditLimit', card['Max Credit Debt']);
+                            }
+                        }
                     });
-                } else {
-                    transactionsList.innerText = "No recent transactions.";
-                }
-            })
-            .catch(error => console.error("Fetch error:", error));
-
-        // 🎉 Confetti Animation
-        function startConfetti() {
-            const confettiCanvas = document.getElementById("confetti");
-            const confettiCtx = confettiCanvas.getContext("2d");
-
-            confettiCanvas.width = window.innerWidth;
-            confettiCanvas.height = window.innerHeight;
-
-            let particles = [];
-            for (let i = 0; i < 100; i++) {
-                particles.push({
-                    x: Math.random() * confettiCanvas.width,
-                    y: Math.random() * confettiCanvas.height,
-                    r: Math.random() * 4 + 1,
-                    d: Math.random() * 2 + 1,
-                });
             }
 
-            function drawConfetti() {
-                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-                confettiCtx.fillStyle = "gold";
-
-                particles.forEach(p => {
-                    confettiCtx.beginPath();
-                    confettiCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2, false);
-                    confettiCtx.fill();
-                    p.y += p.d;
-                    if (p.y > confettiCanvas.height) p.y = 0;
-                });
-
-                requestAnimationFrame(drawConfetti);
+            function celebrate() {
+                alert('🎉 Congratulations! Your credit score or limit has improved!');
             }
 
-            drawConfetti();
-            setTimeout(() => confettiCanvas.style.display = "none", 5000);
-        }
-    });
-</script>
+            function startLoading() {
+                document.getElementById('loadingBar').style.width = '100%';
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.transform = 'translateX(-100%)';
+                    document.querySelector('.dashboard-container').style.display = 'block';
+                }, 1500);
+            }
 
+            startLoading();
+            fetchCardData();
+        });
+    </script>
 </body>
 </html>
