@@ -3,211 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card Dashboard</title>
+    <title>DigiCard Dashboard</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
-
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .dashboard-container {
-            background-color: #1e1e1e;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            width: 650px;
-            max-width: 95%;
-            position: relative;
-        }
-
-        h2 {
-            color: #00bcd4;
-            font-weight: 600;
-        }
-
-        .section {
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
-        }
-
-        button {
-            background-color: #00bcd4;
-            color: #fff;
-            padding: 12px 20px;
-            border: none;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0097a7;
-        }
-
-        .balance-display {
-            font-size: 2em;
-            font-weight: 700;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
             text-align: center;
-            color: #ffc107;
-            margin-bottom: 20px;
         }
-
-        /* Loading Screen */
-        #loadingScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #121212;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-            transition: transform 0.8s ease-in-out;
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
         }
-
-        #loadingBarContainer {
-            width: 200px;
-            height: 10px;
-            background-color: #333;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 15px;
+        .highlight {
+            color: gold;
+            font-size: 1.5em;
+            font-weight: bold;
         }
-
-        #loadingBar {
-            width: 0%;
-            height: 100%;
-            background-color: #00bcd4;
-            transition: width 1.5s linear;
-        }
-
-        /* Platinum Features Section */
-        .platinum-section {
-            background: #292929;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .warning {
-            color: #ff5252;
+        .error {
+            color: red;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loadingScreen">
-        <img id="loadingLogo" src="favicon.png" alt="Loading Logo" width="120">
-        <div id="loadingBarContainer">
-            <div id="loadingBar"></div>
-        </div>
+
+<div class="container">
+    <h2>Welcome, <span id="userName">Loading...</span>!</h2>
+    <p><span class="highlight">Balance: <span id="balance">Loading...</span> DigiCredits</span></p>
+    <hr>
+    <h3>Card Details</h3>
+    <p><strong>Card Number:</strong> <span id="cardNumber">Loading...</span></p>
+    <p><strong>Expiry:</strong> <span id="expiry">Loading...</span></p>
+    <p><strong>CVC:</strong> <span id="cvc">Loading...</span></p>
+    <hr>
+
+    <div id="platinumFeatures" style="display: none;">
+        <h3>Platinum Features</h3>
+        <p><strong>Cashback:</strong> <span id="cashback">Loading...</span></p>
+        <p><strong>Credit Score:</strong> <span id="creditScore">Loading...</span></p>
+        <p><strong>Debt Due:</strong> <span id="debtDue">Loading...</span> / <span id="maxDebt">Loading...</span> DigiCredits</p>
+        <p><strong>Debt Due Date:</strong> <span id="debtDueDate">Loading...</span></p>
     </div>
 
-    <!-- Dashboard -->
-    <div class="dashboard-container" style="display: none;">
-        <h2 id="welcomeMessage">Welcome!</h2>
-        <div class="balance-display" id="balanceDisplay">Balance: Loading...</div>
-
-        <div class="section">
-            <h2>Card Details</h2>
-            <p id="cardDetails"></p>
-        </div>
-
-        <div class="section" id="platinumFeatures" style="display: none;">
-            <h2>Platinum Features</h2>
-            <p id="cashback"></p>
-            <p id="creditScore"></p>
-            <p id="debtInfo"></p>
-        </div>
-
-        <div class="section">
-            <h2>Recent Transactions</h2>
-            <ul id="transactions"></ul>
-        </div>
+    <div id="errorMessage" class="error" style="display: none;">
+        ❌ Error fetching data. Please check your connection or contact support.
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sheetURL = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with actual Google Apps Script URL
-            let previousCreditScore = localStorage.getItem('creditScore');
-            let previousCreditLimit = localStorage.getItem('creditLimit');
+<script>
+    async function fetchCardData() {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cardId = urlParams.get('cardId');
+            console.log("🔍 Fetching data for card ID:", cardId);
 
-            function getCardId() {
-                const params = new URLSearchParams(window.location.search);
-                return params.get('cardId');
+            if (!cardId) {
+                throw new Error("Card ID is missing in the URL!");
             }
 
-            function fetchCardData() {
-                fetch(sheetURL)
-                    .then(response => response.json())
-                    .then(data => {
-                        let cardId = getCardId();
-                        let card = data.find(item => item['Card Number:'] === cardId);
+            const apiUrl = `https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec?cardId=${cardId}`;
+            console.log("🌍 API URL:", apiUrl);
 
-                        if (card) {
-                            document.getElementById('welcomeMessage').textContent = `Welcome, ${card['Name on card:']}!`;
-                            document.getElementById('balanceDisplay').textContent = `Balance: ${card['Card Balance:']} DigiCredits`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            console.log("📊 Fetched Data:", data);
 
-                            document.getElementById('cardDetails').innerHTML = `
-                                <strong>Card Number:</strong> ${card['Card Number:']}<br>
-                                <strong>Expiry:</strong> ${card['Expires:']}<br>
-                                <strong>CVC:</strong> ${card['CVC:']}
-                            `;
-
-                            if (card['Type:'] === 'Platinum') {
-                                document.getElementById('platinumFeatures').style.display = 'block';
-
-                                let maxDebt = parseFloat(card['Max Credit Debt'] || 0);
-                                let debt = parseFloat(card['Debt Due'] || 0);
-                                let debtWarning = debt >= maxDebt * 0.8 ? `<span class="warning">⚠️ Warning: High Debt!</span>` : '';
-
-                                document.getElementById('cashback').textContent = `Cashback: ${card['Cashback']}%`;
-                                document.getElementById('creditScore').textContent = `Credit Score: ${card['Credit Score']}`;
-                                document.getElementById('debtInfo').innerHTML = `Debt Due: ${debt} / ${maxDebt} DigiCredits ${debtWarning}`;
-
-                                // Check for credit score or limit improvements
-                                if (previousCreditScore && card['Credit Score'] > previousCreditScore) {
-                                    celebrate();
-                                }
-
-                                // Save current values for future comparisons
-                                localStorage.setItem('creditScore', card['Credit Score']);
-                                localStorage.setItem('creditLimit', card['Max Credit Debt']);
-                            }
-                        }
-                    });
+            if (!data || Object.keys(data).length === 0) {
+                throw new Error("No data found for this card.");
             }
 
-            function celebrate() {
-                alert('🎉 Congratulations! Your credit score or limit has improved!');
+            // Update Dashboard
+            document.getElementById("userName").textContent = data.name || "Unknown";
+            document.getElementById("balance").textContent = data.balance || "0";
+            document.getElementById("cardNumber").textContent = data.cardNumber || "N/A";
+            document.getElementById("expiry").textContent = data.expiry || "N/A";
+            document.getElementById("cvc").textContent = data.cvc || "N/A";
+
+            if (data.type === "Platinum") {
+                document.getElementById("platinumFeatures").style.display = "block";
+                document.getElementById("cashback").textContent = data.cashback || "0";
+                document.getElementById("creditScore").textContent = data.creditScore || "N/A";
+                document.getElementById("debtDue").textContent = data.debtDue || "0";
+                document.getElementById("maxDebt").textContent = data.maxDebt || "0";
+                document.getElementById("debtDueDate").textContent = data.debtDueDate || "N/A";
             }
 
-            function startLoading() {
-                document.getElementById('loadingBar').style.width = '100%';
-                setTimeout(() => {
-                    document.getElementById('loadingScreen').style.transform = 'translateX(-100%)';
-                    document.querySelector('.dashboard-container').style.display = 'block';
-                }, 1500);
-            }
+        } catch (error) {
+            console.error("🚨 Fetch error:", error);
+            document.getElementById("errorMessage").style.display = "block";
+        }
+    }
 
-            startLoading();
-            fetchCardData();
-        });
-    </script>
+    fetchCardData();
+</script>
+
 </body>
 </html>
+
