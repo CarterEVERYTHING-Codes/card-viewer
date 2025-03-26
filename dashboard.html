@@ -2,12 +2,11 @@
 <html>
 <head>
     <title>Card Dashboard</title>
-    <link rel="icon" href="favicon.png" type="image/png">
     <style>
         body {
             font-family: 'Josefin Sans', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #f4f4f4;
+            color: #333;
             margin: 0;
             padding: 0;
             display: flex;
@@ -15,98 +14,68 @@
             align-items: center;
             min-height: 100vh;
         }
-
         .dashboard-container {
-            background-color: #1e1e1e;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 500px;
             max-width: 90%;
             text-align: left;
-            position: relative;
         }
-
         h2 {
             margin-top: 0;
-            color: #00bfa5;
-            font-weight: 600;
-            margin-bottom: 20px;
+            color: #007bff;
         }
-
         .section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 25px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
         }
-
         ul {
             list-style-type: none;
             padding: 0;
         }
-
         li {
-            margin-bottom: 12px;
-            font-size: 1.1em;
+            margin-bottom: 8px;
         }
-
         button {
-            background-color: #00bfa5;
-            color: #121212;
-            padding: 12px 20px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
             border: none;
-            border-radius: 6px;
             cursor: pointer;
-            margin-top: 15px;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
+            margin-top: 10px;
         }
-
         button:hover {
-            background-color: #00897b;
+            background-color: #0056b3;
         }
-
         .balance-display {
-            font-size: 2.5em;
-            font-weight: 600;
+            font-size: 2em;
+            font-weight: bold;
             text-align: center;
-            margin-bottom: 25px;
-            color: #00bfa5;
+            margin-bottom: 10px;
         }
-
         #loadingWheel {
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.2em;
-            color: #757575;
+            margin-bottom: 20px;
         }
-
-        #loadingScreen, #errorScreen {
+        #loadingScreen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: none;
+            background-color: white;
+            display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
+            z-index: 1001;
+            transition: transform 0.8s ease-in-out;
         }
-
-        #loadingScreen img, #errorScreen img {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-        }
-
-        #loadingScreen div, #errorScreen div {
-            color: white;
-            font-size: 1.5em;
-        }
-
-        #errorScreen div {
-            color: red;
+        #loadingLogo {
+            width: 150px;
+            height: auto;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -115,19 +84,11 @@
 </head>
 <body>
     <div id="loadingScreen">
-        <img src="favicon.png" alt="Digi Logo">
-        <div id="loadingWheel">Loading...</div>
-    </div>
-    <div id="errorScreen">
-        <img src="favicon.png" alt="Digi Logo">
-        <div id="errorMessage"></div>
+        <img id="loadingLogo" src="favicon.png" alt="Loading Logo">
     </div>
     <div class="dashboard-container">
-        <div style="position: absolute; top: 10px; right: 10px;">
-            <img src="favicon.png" alt="Digi Logo" style="width: 50px; height: 50px;">
-        </div>
         <div id="loadingWheel" style="display: none;">Loading...</div>
-        <h2 id="welcomeMessage">Welcome!</h2>
+        <h2 id="welcomeMessage">Welcome, Carter!</h2>
         <div id="balanceDisplay" class="balance-display"></div>
         <div class="section" id="cardDetailsSection">
             <h2>Card Details</h2>
@@ -191,13 +152,13 @@
             }
 
             function fetchCardData() {
-                document.getElementById('loadingScreen').style.display = 'flex';
+                document.getElementById('loadingWheel').style.display = 'block';
                 const cardId = getCardIdFromUrl();
-                const sheetUrl = 'https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec'; // Replace with your actual URL
+                const sheetUrl = 'YOUR_CORRECT_URL'; // Replace with your actual URL
                 fetch(sheetUrl)
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('loadingWheel').style.display = 'none';
                         console.log("Data from Google Apps Script:", data);
                         cardData = data.find(item => item['Card Number:'] === cardId);
                         if (cardData) {
@@ -208,9 +169,7 @@
                         }
                     })
                     .catch(error => {
-                        document.getElementById('loadingScreen').style.display = 'none';
-                        document.getElementById('errorMessage').textContent = 'Error loading data. Please try again.';
-                        document.getElementById('errorScreen').style.display = 'flex';
+                        document.getElementById('loadingWheel').style.display = 'none';
                         console.error('Error fetching card data:', error);
                         document.getElementById('cardDetails').innerHTML = '<li>Error loading card data.</li>';
                         document.getElementById('balanceDisplay').textContent = 'Balance: N/A';
@@ -220,7 +179,17 @@
             fetchCardData();
 
             document.getElementById('reportFraudButton').addEventListener('click', reportFraud);
+
+            // Loading Screen Animation
+            const loadingScreen = document.getElementById('loadingScreen');
+            setTimeout(() => {
+                loadingScreen.style.transform = 'translateX(-100%)';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 800);
+            }, 1300);
         });
     </script>
 </body>
+</html>
 </html>
