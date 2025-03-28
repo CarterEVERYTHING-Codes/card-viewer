@@ -3,103 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigiCard Dashboard</title>
+    <title>Dashboard</title>
     <style>
         body {
-            background-color: black;
-            color: white;
+            background-color: #000;
+            color: #fff;
             font-family: Arial, sans-serif;
             text-align: center;
         }
-        .container {
-            max-width: 500px;
-            margin: auto;
-            background: #222;
+        .dashboard {
+            background: #111;
             padding: 20px;
             border-radius: 10px;
+            width: 50%;
+            margin: auto;
+            margin-top: 50px;
+            box-shadow: 0px 0px 10px #444;
         }
-        .highlight {
+        h1 {
+            color: cyan;
+        }
+        h2 {
             color: gold;
-            font-size: 1.5em;
-            font-weight: bold;
+        }
+        .card-details, .platinum-features {
+            margin-top: 20px;
+            border-top: 1px solid #555;
+            padding-top: 10px;
         }
         .error {
             color: red;
-            font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Welcome, <span id="userName">Loading...</span>!</h2>
-    <p><span class="highlight">Balance: <span id="balance">Loading...</span> DigiCredits</span></p>
-    <hr>
-    <h3>Card Details</h3>
-    <p><strong>Card Number:</strong> <span id="cardNumber">Loading...</span></p>
-    <p><strong>Expiry:</strong> <span id="expiry">Loading...</span></p>
-    <p><strong>CVC:</strong> <span id="cvc">Loading...</span></p>
-    <hr>
+    <div class="dashboard">
+        <h1>Welcome, <span id="userName">Loading...</span>!</h1>
+        <h2>Balance: <span id="balance">Loading...</span></h2>
 
-    <div id="platinumFeatures" style="display: none;">
-        <h3>Platinum Features</h3>
-        <p><strong>Cashback:</strong> <span id="cashback">Loading...</span></p>
-        <p><strong>Credit Score:</strong> <span id="creditScore">Loading...</span></p>
-        <p><strong>Debt Due:</strong> <span id="debtDue">Loading...</span> / <span id="maxDebt">Loading...</span> DigiCredits</p>
-        <p><strong>Debt Due Date:</strong> <span id="debtDueDate">Loading...</span></p>
+        <div class="card-details">
+            <h3>Card Details</h3>
+            <p><strong>Card Number:</strong> <span id="cardNumber">Loading...</span></p>
+            <p><strong>Expiry:</strong> <span id="expiry">Loading...</span></p>
+            <p><strong>CVC:</strong> <span id="cvc">Loading...</span></p>
+        </div>
+
+        <div class="platinum-features">
+            <h3>Platinum Features</h3>
+            <p><strong>Cashback:</strong> <span id="cashback">Loading...</span></p>
+            <p><strong>Credit Score:</strong> <span id="creditScore">Loading...</span></p>
+            <p><strong>Debt Due:</strong> <span id="debtDue">Loading...</span></p>
+            <p><strong>Debt Due Date:</strong> <span id="debtDueDate">Loading...</span></p>
+        </div>
+
+        <p id="errorMessage" class="error"></p>
     </div>
 
-    <div id="errorMessage" class="error" style="display: none;">
-        ❌ Error fetching data. Please check your connection or contact support.
-    </div>
-</div>
-
-<script>
-    async function fetchCardData() {
-        try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const cardId = urlParams.get('cardId');
-            console.log("🔍 Fetching data for card ID:", cardId);
-
+    <script>
+        async function fetchCardData() {
+            const cardId = getCardIdFromURL();
+            console.log("📡 Fetching data for card:", cardId);
+            
             if (!cardId) {
-                throw new Error("Card ID is missing in the URL!");
+                console.error("🚨 Card ID is missing from the URL!");
+                document.getElementById("errorMessage").innerText = "❌ Error: Card ID is missing!";
+                return;
             }
 
-            const apiUrl = `https://script.google.com/macros/s/AKfycbwI_d8Vx9sOuxqFlF-NXML6aoWj4JsXwRavkmvjR_P9Ho1wF2KYHfAeD6nSzcoPtiO4/exec?cardId=${cardId}`;
+            const apiUrl = `https://script.google.com/macros/s/AKfycbw2EKEENVg1lwg3nLg8rzSU74_iQPu05NVM1nnFTuvKzUymvcV4XD1XnSIWQRUaU5Ku/exec?cardId=${cardId}`;
             console.log("🌍 API URL:", apiUrl);
 
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            console.log("📊 Fetched Data:", data);
+            try {
+                const response = await fetch(apiUrl);
+                const text = await response.text();
+                console.log("📄 Raw Response:", text);
 
-            if (!data || Object.keys(data).length === 0) {
-                throw new Error("No data found for this card.");
+                let data = JSON.parse(text);
+                console.log("📊 Fetched Data:", data);
+
+                // If data is an array, extract the first object
+                if (Array.isArray(data) && data.length > 0) {
+                    data = data[0]; // Get the first object in the array
+                }
+
+                // Update the dashboard with fetched data
+                document.getElementById("userName").innerText = data.name || "Unknown";
+                document.getElementById("balance").innerText = data.balance ? `${data.balance} DigiCredits` : "0 DigiCredits";
+                document.getElementById("cardNumber").innerText = data.cardNumber || "N/A";
+                document.getElementById("expiry").innerText = data.expiry || "N/A";
+                document.getElementById("cvc").innerText = data.cvc || "N/A";
+
+                // Platinum Features
+                document.getElementById("cashback").innerText = data.cashback || "N/A";
+                document.getElementById("creditScore").innerText = data.creditScore || "N/A";
+                document.getElementById("debtDue").innerText = data.debtDue ? `${data.debtDue} / ${data.maxCreditDebt} DigiCredits` : "N/A";
+                document.getElementById("debtDueDate").innerText = data.debtDueDate || "N/A";
+
+            } catch (error) {
+                console.error("🚨 Fetch error:", error);
+                document.getElementById("errorMessage").innerText = "❌ Error fetching data. Please check your connection or contact support.";
             }
-
-            // Update Dashboard
-            document.getElementById("userName").textContent = data.name || "Unknown";
-            document.getElementById("balance").textContent = data.balance || "0";
-            document.getElementById("cardNumber").textContent = data.cardNumber || "N/A";
-            document.getElementById("expiry").textContent = data.expiry || "N/A";
-            document.getElementById("cvc").textContent = data.cvc || "N/A";
-
-            if (data.type === "Platinum") {
-                document.getElementById("platinumFeatures").style.display = "block";
-                document.getElementById("cashback").textContent = data.cashback || "0";
-                document.getElementById("creditScore").textContent = data.creditScore || "N/A";
-                document.getElementById("debtDue").textContent = data.debtDue || "0";
-                document.getElementById("maxDebt").textContent = data.maxDebt || "0";
-                document.getElementById("debtDueDate").textContent = data.debtDueDate || "N/A";
-            }
-
-        } catch (error) {
-            console.error("🚨 Fetch error:", error);
-            document.getElementById("errorMessage").style.display = "block";
         }
-    }
 
-    fetchCardData();
-</script>
+        function getCardIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get("cardId");
+        }
+
+        fetchCardData();
+    </script>
 
 </body>
 </html>
