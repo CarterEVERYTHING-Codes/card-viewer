@@ -1,113 +1,134 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card Dashboard</title>
+    <title>Dashboard</title>
     <style>
         body {
-            background-color: black;
+            font-family: 'Josefin Sans', sans-serif;
+            background-color: #121212;
             color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .card-container {
+
+        .dashboard {
             background-color: #222;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+            text-align: center;
             width: 400px;
-            margin: auto;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
+
         h1 {
             color: cyan;
         }
-        .balance {
+
+        h2 {
             color: gold;
-            font-weight: bold;
         }
-        .section {
-            margin-top: 20px;
-            text-align: left;
+
+        .info {
+            background-color: #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
         }
-        .error {
-            color: red;
-            font-weight: bold;
+
+        .platinum-features {
+            background-color: #444;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .report-button {
+            background-color: red;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .report-button:hover {
+            background-color: darkred;
         }
     </style>
-</head>
-<body>
-    <div class="card-container">
-        <h1>Welcome, <span id="cardholder-name">Loading...</span>!</h1>
-        <p class="balance">Balance: <span id="card-balance">Loading...</span> DigiCredits</p>
-        <hr>
-        <div class="section">
-            <h3>Card Details</h3>
-            <p><strong>Card Number:</strong> <span id="card-number">Loading...</span></p>
-            <p><strong>Expiry:</strong> <span id="expiry-date">Loading...</span></p>
-            <p><strong>CVC:</strong> <span id="cvc">Loading...</span></p>
-        </div>
-        <hr>
-        <div class="section">
-            <h3>Platinum Features</h3>
-            <p><strong>Cashback:</strong> <span id="cashback">Loading...</span></p>
-            <p><strong>Credit Score:</strong> <span id="credit-score">Loading...</span></p>
-            <p><strong>Debt Due:</strong> <span id="debt-due">Loading...</span></p>
-            <p><strong>Debt Due Date:</strong> <span id="debt-due-date">Loading...</span></p>
-        </div>
-        <p id="error-message" class="error"></p>
-    </div>
-
     <script>
-        async function fetchCardData() {
+        function getCardIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
-            const cardId = urlParams.get("cardId");
+            return urlParams.get('cardId');
+        }
 
+        function fetchCardData() {
+            const cardId = getCardIdFromUrl();
             if (!cardId) {
-                document.getElementById("error-message").textContent = "❌ Card ID is missing in the URL.";
+                document.getElementById('dashboard').innerHTML = "<p>Card ID missing.</p>";
                 return;
             }
 
-            console.log("📡 Fetching data for card:", cardId);
-
-            const apiUrl = "https://script.google.com/macros/s/AKfycbw2EKEENVg1lwg3nLg8rzSU74_iQPu05NVM1nnFTuvKzUymvcV4XD1XnSIWQRUaU5Ku/exec";
-            console.log("🌍 API URL:", apiUrl);
-
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                console.log("📥 Raw Response:", data);
-
-                const cardData = data.find(card => card["cardId"] === cardId);
-                console.log("✅ Fetched Data:", cardData);
-
-                if (!cardData) {
-                    document.getElementById("error-message").textContent = "❌ Card not found.";
-                    return;
-                }
-
-                // Update UI with fetched data
-                document.getElementById("cardholder-name").textContent = cardData["Name on card:"] || "Unknown";
-                document.getElementById("card-balance").textContent = cardData["Card Balance"] || "N/A";
-                document.getElementById("card-number").textContent = cardData["cardId"] || "N/A";
-                document.getElementById("expiry-date").textContent = cardData["Expires"] || "N/A";
-                document.getElementById("cvc").textContent = cardData["CVC"] || "N/A";
-                document.getElementById("cashback").textContent = cardData["Cashback"] || "N/A";
-                document.getElementById("credit-score").textContent = cardData["Credit score"] || "N/A";
-                document.getElementById("debt-due").textContent = cardData["Debt due"] || "N/A";
-                document.getElementById("debt-due-date").textContent = cardData["Debt due date"] || "N/A";
-
-            } catch (error) {
-                console.error("❌ Error fetching data:", error);
-                document.getElementById("error-message").textContent = "❌ Error fetching data. Please check your connection or contact support.";
-            }
+            const sheetUrl = "https://script.google.com/macros/s/AKfycbw2EKEENVg1lwg3nLg8rzSU74_iQPu05NVM1nnFTuvKzUymvcV4XD1XnSIWQRUaU5Ku/exec";
+            
+            fetch(sheetUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const cardData = data.find(item => item['cardId'] === cardId);
+                    if (cardData) {
+                        displayDashboard(cardData);
+                    } else {
+                        document.getElementById('dashboard').innerHTML = "<p>Card not found.</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    document.getElementById('dashboard').innerHTML = "<p>Error loading data.</p>";
+                });
         }
 
-        fetchCardData();
+        function displayDashboard(cardData) {
+            let platinumHtml = "";
+            if (cardData['Type'] !== "Silver") {
+                platinumHtml = `
+                    <div class="platinum-features">
+                        <h2>Platinum Features</h2>
+                        <p><strong>Cashback:</strong> ${cardData['Cashback'] || "N/A"}</p>
+                        <p><strong>Credit Score:</strong> ${cardData['Credit score'] || "N/A"}</p>
+                        <p><strong>Debt Due:</strong> ${cardData['Debt due'] || "N/A"}</p>
+                        <p><strong>Debt Due Date:</strong> ${cardData['Debt due date'] || "N/A"}</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('dashboard').innerHTML = `
+                <h1>Welcome, ${cardData['Name on card:'] || "Unknown"}!</h1>
+                <h2>Balance: ${cardData['Card Balance'] || "0"} DigiCredits</h2>
+                <div class="info">
+                    <p><strong>Card Number:</strong> ${cardData['cardId']}</p>
+                    <p><strong>Expiry:</strong> ${cardData['Expires'] || "N/A"}</p>
+                    <p><strong>CVC:</strong> ${cardData['CVC'] || "N/A"}</p>
+                    <p><strong>Type:</strong> ${cardData['Type']}</p>
+                </div>
+                ${platinumHtml}
+                <button class="report-button" onclick="reportFraud()">Report Fraud</button>
+            `;
+        }
+
+        function reportFraud() {
+            window.open("https://docs.google.com/forms/d/e/1FAIpQLScCV57H61VSOvd282C6YjE4dXThj382yFQN5r69MAYuLsZH5w/viewform?usp=header", "_blank");
+        }
+
+        window.onload = fetchCardData;
     </script>
-</body>
-</html>
-
-
+</head>
+<body>
+    <div id="dashboard" class="dashboard">
+        <p>Loading...</p>
+    </div>
 </body>
 </html>
