@@ -6,31 +6,29 @@
     <title>Card Dashboard</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             background-color: black;
             color: white;
+            font-family: Arial, sans-serif;
             text-align: center;
         }
-        .dashboard {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
+        .card-container {
             background-color: #222;
+            padding: 20px;
             border-radius: 10px;
+            width: 400px;
+            margin: auto;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
         h1 {
             color: cyan;
         }
         .balance {
-            font-size: 20px;
-            font-weight: bold;
             color: gold;
+            font-weight: bold;
         }
-        .section-title {
-            font-size: 18px;
-            color: cyan;
-            margin-top: 10px;
+        .section {
+            margin-top: 20px;
+            text-align: left;
         }
         .error {
             color: red;
@@ -39,83 +37,77 @@
     </style>
 </head>
 <body>
-
-    <div class="dashboard">
-        <h1>Welcome, <span id="cardHolder">Loading...</span>!</h1>
-        <p class="balance">Balance: <span id="balance">Loading...</span> DigiCredits</p>
+    <div class="card-container">
+        <h1>Welcome, <span id="cardholder-name">Loading...</span>!</h1>
+        <p class="balance">Balance: <span id="card-balance">Loading...</span> DigiCredits</p>
         <hr>
-
-        <p class="section-title">Card Details</p>
-        <p><strong>Card Number:</strong> <span id="cardNumber">Loading...</span></p>
-        <p><strong>Expiry:</strong> <span id="expiry">Loading...</span></p>
-        <p><strong>CVC:</strong> <span id="cvc">Loading...</span></p>
-
+        <div class="section">
+            <h3>Card Details</h3>
+            <p><strong>Card Number:</strong> <span id="card-number">Loading...</span></p>
+            <p><strong>Expiry:</strong> <span id="expiry-date">Loading...</span></p>
+            <p><strong>CVC:</strong> <span id="cvc">Loading...</span></p>
+        </div>
         <hr>
-        <p class="section-title">Platinum Features</p>
-        <p><strong>Cashback:</strong> <span id="cashback">N/A</span></p>
-        <p><strong>Credit Score:</strong> <span id="creditScore">N/A</span></p>
-        <p><strong>Debt Due:</strong> <span id="debtDue">N/A</span></p>
-        <p><strong>Debt Due Date:</strong> <span id="debtDueDate">N/A</span></p>
-
-        <p id="errorMessage" class="error" style="display: none;">❌ Error fetching data. Please check your connection or contact support.</p>
+        <div class="section">
+            <h3>Platinum Features</h3>
+            <p><strong>Cashback:</strong> <span id="cashback">Loading...</span></p>
+            <p><strong>Credit Score:</strong> <span id="credit-score">Loading...</span></p>
+            <p><strong>Debt Due:</strong> <span id="debt-due">Loading...</span></p>
+            <p><strong>Debt Due Date:</strong> <span id="debt-due-date">Loading...</span></p>
+        </div>
+        <p id="error-message" class="error"></p>
     </div>
 
     <script>
         async function fetchCardData() {
-            const cardId = getCardIdFromURL();
-            console.log("📡 Fetching data for card:", cardId);
+            const urlParams = new URLSearchParams(window.location.search);
+            const cardId = urlParams.get("cardId");
 
             if (!cardId) {
-                console.error("❌ Card ID is missing in the URL!");
-                document.getElementById("errorMessage").style.display = "block";
+                document.getElementById("error-message").textContent = "❌ Card ID is missing in the URL.";
                 return;
             }
 
-            const apiUrl = "https://script.google.com/macros/s/AKfycbw2EKEENVg1lwg3nLg8rzSU74_iQPu05NVM1nnFTuvKzUymvcV4XD1XnSIWQRUaU5Ku/exec";  // 🔧 Replace with your actual API URL
+            console.log("📡 Fetching data for card:", cardId);
+
+            const apiUrl = "https://script.google.com/macros/s/AKfycbw2EKEENVg1lwg3nLg8rzSU74_iQPu05NVM1nnFTuvKzUymvcV4XD1XnSIWQRUaU5Ku/exec";
             console.log("🌍 API URL:", apiUrl);
 
             try {
                 const response = await fetch(apiUrl);
                 const data = await response.json();
-
                 console.log("📥 Raw Response:", data);
 
-                // 🔍 Find the correct card object inside the array
-                const cardData = data.find(card => card.cardId === cardId);
+                const cardData = data.find(card => card["cardId"] === cardId);
+                console.log("✅ Fetched Data:", cardData);
 
                 if (!cardData) {
-                    console.error("❌ No data found for card ID:", cardId);
-                    document.getElementById("errorMessage").style.display = "block";
+                    document.getElementById("error-message").textContent = "❌ Card not found.";
                     return;
                 }
 
-                console.log("✅ Fetched Data:", cardData);
-
-                // 🔄 Update dashboard with API data
-                document.getElementById("cardHolder").textContent = cardData.Name || "Unknown";
-                document.getElementById("balance").textContent = cardData.Balance || "0";
-                document.getElementById("cardNumber").textContent = cardData.cardId || "N/A";
-                document.getElementById("expiry").textContent = cardData.Expires || "N/A";
-                document.getElementById("cvc").textContent = cardData.CVC || "N/A";
-
+                // Update UI with fetched data
+                document.getElementById("cardholder-name").textContent = cardData["Name on card:"] || "Unknown";
+                document.getElementById("card-balance").textContent = cardData["Card Balance"] || "N/A";
+                document.getElementById("card-number").textContent = cardData["cardId"] || "N/A";
+                document.getElementById("expiry-date").textContent = cardData["Expires"] || "N/A";
+                document.getElementById("cvc").textContent = cardData["CVC"] || "N/A";
                 document.getElementById("cashback").textContent = cardData["Cashback"] || "N/A";
-                document.getElementById("creditScore").textContent = cardData["Credit score"] || "N/A";
-                document.getElementById("debtDue").textContent = `${cardData["Debt Due"] || 0} / ${cardData["Max Credit Debt"] || "N/A"} DigiCredits`;
-                document.getElementById("debtDueDate").textContent = cardData["Debt Due Date"] || "N/A";
+                document.getElementById("credit-score").textContent = cardData["Credit score"] || "N/A";
+                document.getElementById("debt-due").textContent = cardData["Debt due"] || "N/A";
+                document.getElementById("debt-due-date").textContent = cardData["Debt due date"] || "N/A";
 
             } catch (error) {
-                console.error("❌ Fetch error:", error);
-                document.getElementById("errorMessage").style.display = "block";
+                console.error("❌ Error fetching data:", error);
+                document.getElementById("error-message").textContent = "❌ Error fetching data. Please check your connection or contact support.";
             }
-        }
-
-        function getCardIdFromURL() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get("cardId");
         }
 
         fetchCardData();
     </script>
+</body>
+</html>
+
 
 </body>
 </html>
