@@ -1,202 +1,171 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Card Details</title>
+    <title>Card Verification</title>
     <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
         body {
             font-family: 'Josefin Sans', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: #000;
+            color: #fff;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
+            flex-direction: column;
         }
         #loading {
             display: none;
-            text-align: center;
-            margin-bottom: 20px;
+            font-size: 18px;
+            color: #00d4ff;
+            margin-bottom: 15px;
         }
         #cvcForm {
-            background-color: #fff;
+            background-color: #111;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            max-width: 90%;
+            box-shadow: 0 4px 8px rgba(0, 255, 255, 0.2);
+            width: 320px;
             text-align: center;
-        }
-        #cardDetails {
-            display: none;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            max-width: 90%;
         }
         h2 {
-            margin-top: 0;
-            color: #007bff;
-            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 20px;
         }
-        .detail-item {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+        label {
+            font-size: 16px;
         }
-        .detail-item strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+            background-color: #222;
+            color: #fff;
+            transition: 0.2s;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 8px;
+        input.shake {
+            animation: shake 0.3s ease-in-out;
+            border-color: red;
         }
         button {
-            background-color: #dc3545;
-            color: #fff;
-            padding: 10px 15px; /* Added padding */
+            background-color: #ffcc00;
+            color: #000;
+            padding: 10px;
+            width: 100%;
             border: none;
-            border-radius: 5px; /* Added border radius */
+            border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px; /* Added margin */
+            font-size: 16px;
+            margin-top: 15px;
+            transition: 0.3s;
         }
         button:hover {
-            background-color: #c82333;
+            background-color: #ffdb4d;
         }
-        #cvcInput {
-            padding: 8px; /* Added padding */
-            border: 1px solid #ccc;
-            border-radius: 5px; /* Added border radius */
-            width: 150px; /* Added width */
-            margin-top: 10px; /* Added margin */
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+        #cvcError {
+            color: red;
+            margin-top: 10px;
+            display: none;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="loading">Loading...</div>
+
+    <div id="loading">🔄 Loading...</div>
+
     <div id="cvcForm">
-        <label for="cvcInput">Enter CVC:</label>
-        <input type="password" id="cvcInput">
+        <h2>🔒 Enter Your CVC</h2>
+        <label for="cvcInput">CVC Code:</label>
+        <input type="password" id="cvcInput" maxlength="3">
         <button id="verifyButton">Verify</button> 
-        <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
+        <p id="cvcError">❌ Incorrect CVC.</p>
     </div>
-    <div id="cardDetails"></div>
+
 <script>
     let cardData;
-    let cvcVerified = false;
-    let intervalId;
 
     function getCardIdFromUrl() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('cardId');
     }
 
-    function verifyCVC(enteredCVC) {
+    function verifyCVC() {
+        const cvcInput = document.getElementById('cvcInput');
+        const verifyButton = document.getElementById('verifyButton');
+        const cvcError = document.getElementById('cvcError');
+
         if (!cardData) {
-            console.error("cardData is undefined. Cannot verify CVC.");
+            console.error("Card data not loaded. Cannot verify CVC.");
             return;
         }
 
-        console.log("cardData:", cardData);
+        verifyButton.disabled = true;
+        verifyButton.textContent = "Verifying...";
 
-        if (enteredCVC === cardData['CVC:'].toString()) {
-            // Redirect to dashboard.html after successful verification
-            const cardId = getCardIdFromUrl();
-            window.location.href = `dashboard.html?cardId=${cardId}`;
-        } else {
-            document.getElementById('cvcError').style.display = 'block';
-        }
-    }
+        setTimeout(() => {
+            if (cvcInput.value === cardData['CVC']) {
+                window.location.href = `dashboard.html?cardId=${getCardIdFromUrl()}`;
+            } else {
+                cvcError.style.display = 'block';
+                cvcInput.classList.add('shake');
 
-    function displayCardDetails() {
-        if (!cardData) {
-            document.getElementById('cardDetails').textContent = 'Card data not available.';
-            return;
-        }
-
-        let detailsHtml = `
-            <h2>Card Details</h2>
-            <div class="detail-item"><strong>Card Number:</strong> ${cardData['Card Number:']}</div>
-            <div class="detail-item"><strong>Card Balance:</strong> ${cardData['Card Balance:']}</div>
-            <div class="detail-item"><strong>Frozen:</strong> ${cardData['Frozen:']}</div>
-            <div class="detail-item"><strong>Name on Card:</strong> ${cardData['Name on card:']}</div>
-            <div class="detail-item"><strong>CVC:</strong> ${cardData['CVC:']}</div>
-            <div class="detail-item"><strong>Type:</strong> ${cardData['Type']}</div>
-        `;
-
-        document.getElementById('cardDetails').innerHTML = detailsHtml;
-    }
-
-    function updateCardDetails() {
-        try {
-            if (!cardData) {
-                document.getElementById('loading').style.display = 'block';
+                setTimeout(() => {
+                    cvcInput.classList.remove('shake');
+                    verifyButton.disabled = false;
+                    verifyButton.textContent = "Verify";
+                }, 600);
             }
+        }, 1000); // Simulating delay for realism
+    }
 
-            const cardId = getCardIdFromUrl();
-            console.log("Card ID:", cardId);
+    function fetchCardData() {
+        const cardId = getCardIdFromUrl();
+        if (!cardId) {
+            alert("Card ID missing from URL!");
+            return;
+        }
 
-            if (!cardId) {
-                document.getElementById('cardDetails').textContent = 'Card ID not provided.';
+        const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
+
+        document.getElementById('loading').style.display = 'block';
+
+        fetch(sheetUrl)
+            .then(response => response.json())
+            .then(data => {
+                cardData = data.find(item => item['cardId'] === cardId);
                 document.getElementById('loading').style.display = 'none';
-                return;
-            }
 
-            const sheetUrl = 'https://script.google.com/macros/s/AKfycbzSY-F7-I9yh_b7Vh_EkyH1esb_J-DmbYm-k9dIed2GQ7Us9QYxXcySwbpJW0AyPzgD/exec';
-
-            fetch(sheetUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    cardData = data.find(item => item['Card Number:'] === cardId);
-                    if (cardData) {
-                        if (!cvcVerified) {
-                            document.getElementById('cvcForm').innerHTML = `
-                                <label for="cvcInput">Enter CVC:</label>
-                                <input type="password" id="cvcInput">
-                                <button id="verifyButton">Verify</button>
-                                <p id="cvcError" style="color: red; display: none;">Incorrect CVC.</p>
-                            `;
-                            document.getElementById('verifyButton').addEventListener('click', function() {
-                                verifyCVC(document.getElementById('cvcInput').value);
-                            });
-                        }
-                        document.getElementById('loading').style.display = 'none';
-                    } else {
-                        document.getElementById('cardDetails').textContent = 'Card not found.';
-                        document.getElementById('loading').style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    document.getElementById('cardDetails').textContent = 'Error loading card details.';
-                    document.getElementById('loading').style.display = 'none';
-                });
-        } catch (error) {
-            console.error("Error in updateCardDetails():", error);
-        }
+                if (!cardData) {
+                    alert("Card not found!");
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching card data:", error);
+                document.getElementById('loading').style.display = 'none';
+            });
     }
 
-    updateCardDetails();
+    document.getElementById('verifyButton').addEventListener('click', verifyCVC);
 
-    document.getElementById('verifyButton').addEventListener('click', function() {
-        verifyCVC(document.getElementById('cvcInput').value);
-    });
+    fetchCardData();
 </script>
+
 </body>
 </html>
