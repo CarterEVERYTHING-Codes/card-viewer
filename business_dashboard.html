@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Dashboard</title>
+    <style>
+        body {
+            font-family: 'Josefin Sans', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        #dashboard {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            text-align: left;
+        }
+        button {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #errorBox {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+        #errorImage {
+            width: 50px;
+            height: 50px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Welcome to Business Dashboard</h2>
+<div id="dashboard">
+    <p><strong>Business ID:</strong> <span id="businessId">Loading...</span></p>
+    <p><strong>Balance:</strong> <span id="balance">Loading...</span></p>
+    <button onclick="showPurchaseForm()">Initiate Purchase</button>
+</div>
+
+<div id="purchaseForm" style="display: none;">
+    <h3>Purchase Details</h3>
+    <input type="password" id="businessCvc" placeholder="Enter Your CVC">
+    <input type="text" id="customerCardId" placeholder="Customer Card Number">
+    <input type="password" id="customerCvc" placeholder="Customer CVC">
+    <input type="text" id="customerExpiry" placeholder="Customer Expiry Date">
+    <input type="text" id="purchaseName" placeholder="Purchase Name">
+    <input type="number" id="purchaseAmount" placeholder="Amount">
+    <button onclick="processPurchase()">Confirm Purchase</button>
+</div>
+
+<p id="errorBox"><img id="errorImage" src="error.png"> <span id="errorText"></span></p>
+
+<script>
+    let businessCard = null;
+
+    function getCardIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("cardId");
+    }
+
+    function loadBusinessData() {
+        const cardId = getCardIdFromUrl();
+        fetch("https://script.google.com/macros/s/YOUR_SCRIPT_URL_HERE/exec")
+            .then(response => response.json())
+            .then(data => {
+                businessCard = data.find(card => card.cardId === cardId && card.Type === "Business");
+
+                if (!businessCard) {
+                    alert("Unauthorized access!");
+                    window.location.href = "business_login.html";
+                    return;
+                }
+
+                document.getElementById("businessId").textContent = businessCard.cardId;
+                document.getElementById("balance").textContent = businessCard["Card Balance"];
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+            });
+    }
+
+    function showPurchaseForm() {
+        document.getElementById("purchaseForm").style.display = "block";
+    }
+
+    function processPurchase() {
+        const businessCvc = document.getElementById("businessCvc").value;
+        const customerCardId = document.getElementById("customerCardId").value;
+        const customerCvc = document.getElementById("customerCvc").value;
+        const customerExpiry = document.getElementById("customerExpiry").value;
+        const purchaseName = document.getElementById("purchaseName").value;
+        const purchaseAmount = parseFloat(document.getElementById("purchaseAmount").value);
+
+        if (businessCvc !== businessCard.CVC) {
+            showError("Invalid business CVC.");
+            return;
+        }
+
+        fetch("https://script.google.com/macros/s/YOUR_SCRIPT_URL_HERE/exec")
+            .then(response => response.json())
+            .then(data => {
+                const customerCard = data.find(card => card.cardId === customerCardId && card.CVC === customerCvc && card.Expires === customerExpiry);
+
+                if (!customerCard) {
+                    showError("Invalid customer details.");
+                    return;
+                }
+
+                if (customerCard.Suspended === "Yes") {
+                    showError("Card is suspended.");
+                    return;
+                }
+
+                if (purchaseAmount > parseFloat(customerCard["Card Balance"])) {
+                    showError("Insufficient balance.");
+                    return;
+                }
+
+                alert(`Purchase of ${purchaseAmount} DigiCredits for ${purchaseName} successful!`);
+            })
+            .catch(error => {
+                console.error("Error processing purchase:", error);
+            });
+    }
+
+    function showError(message) {
+        document.getElementById("errorText").textContent = message;
+        document.getElementById("errorImage").style.display = "inline";
+        document.getElementById("errorBox").style.display = "block";
+    }
+
+    loadBusinessData();
+</script>
+
+</body>
+</html>
