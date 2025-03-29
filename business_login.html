@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Card Login</title>
+    <style>
+        body {
+            font-family: 'Josefin Sans', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #loginBox {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #error {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loginBox">
+    <h2>Business Card Login</h2>
+    <input type="text" id="cardNumber" placeholder="Enter Card Number">
+    <input type="password" id="cvc" placeholder="Enter CVC">
+    <button onclick="login()">Login</button>
+    <p id="error">Invalid Card Number, CVC, or Card Type.</p>
+</div>
+
+<script>
+    function login() {
+        const cardNumber = document.getElementById("cardNumber").value;
+        const cvc = document.getElementById("cvc").value;
+        
+        fetch("https://script.google.com/macros/s/AKfycbw2EKEENVg1lwg3nLg8rzSU74_iQPu05NVM1nnFTuvKzUymvcV4XD1XnSIWQRUaU5Ku/exec")
+            .then(response => response.json())
+            .then(data => {
+                const businessCard = data.find(card => card.cardId === cardNumber && card.CVC === cvc && card.Type === "Business");
+                
+                if (businessCard) {
+                    window.location.href = `business_dashboard.html?cardId=${cardNumber}`;
+                } else {
+                    document.getElementById("error").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                document.getElementById("error").innerText = "Connection error. Try again later.";
+                document.getElementById("error").style.display = "block";
+            });
+    }
+</script>
+
+</body>
+</html>
