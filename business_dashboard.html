@@ -75,7 +75,7 @@
 
     function loadBusinessData() {
         const cardId = getCardIdFromUrl();
-        fetch("https://script.google.com/macros/s/YOUR_SCRIPT_URL_HERE/exec")
+        fetch("https://script.google.com/macros/s/AKfycbw2EKEENVg1lwg3nLg8rzSU74_iQPu05NVM1nnFTuvKzUymvcV4XD1XnSIWQRUaU5Ku/exec")
             .then(response => response.json())
             .then(data => {
                 businessCard = data.find(card => card.cardId === cardId && card.Type === "Business");
