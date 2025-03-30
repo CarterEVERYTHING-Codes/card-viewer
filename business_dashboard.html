@@ -75,7 +75,7 @@
 
     function loadBusinessData() {
         const cardId = getCardIdFromUrl();
-        fetch("https://script.google.com/macros/s/AKfycbxfiS31BW7MQbePiLwkzR-djDAbugZGCITwodXs0ohs2inF9Zqa29gTBEnoPPP9eCoA/exec")
+        fetch("https://script.google.com/macros/s/AKfycbyIHKx7yyVjyfooYGHB6b2GpnkGtiv6LjWFXEW9526PKNAg0AjwzBA5-yEyoZ_pCuYw/exec")
             .then(response => response.json())
             .then(data => {
                 businessCard = data.find(card => card.cardId === cardId && card.Type === "Business");
@@ -111,7 +111,7 @@
             return;
         }
 
-        fetch("https://script.google.com/macros/s/AKfycbxfiS31BW7MQbePiLwkzR-djDAbugZGCITwodXs0ohs2inF9Zqa29gTBEnoPPP9eCoA/exec")
+        fetch("https://script.google.com/macros/s/AKfycbyIHKx7yyVjyfooYGHB6b2GpnkGtiv6LjWFXEW9526PKNAg0AjwzBA5-yEyoZ_pCuYw/exec")
             .then(response => response.json())
             .then(data => {
                 const customerCard = data.find(card => card.cardId === customerCardId && card.CVC === customerCvc && card.Expires === customerExpiry);
