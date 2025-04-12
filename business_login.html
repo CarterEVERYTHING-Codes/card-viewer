@@ -61,7 +61,7 @@
         const cardNumber = document.getElementById("cardNumber").value;
         const cvc = document.getElementById("cvc").value;
         
-        fetch("https://script.google.com/macros/s/AKfycby2W8SQTNjhzx7sABjpScU41-PHLcctNNLtNsVWcxLxfgggnz5PXNRJ307ay8i6yqAS/exec")
+        fetch("https://script.google.com/macros/s/AKfycbwEaoQVxXMEUyyzSTQmxF43gdXu1Kxrn4IgbQx1jrCZzYqKNWNoK-lzX6Kxg6Zk7bOq/exec")
             .then(response => response.json())
             .then(data => {
                 const businessCard = data.find(card => card.cardId === cardNumber && card.CVC === cvc && card.Type === "Business");
