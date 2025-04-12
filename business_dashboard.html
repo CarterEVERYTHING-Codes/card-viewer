@@ -88,7 +88,7 @@
 
   function loadBusinessData() {
     const cardId = getCardIdFromUrl();
-    fetch("https://script.google.com/macros/s/AKfycbzOs6kI1G3Pi9Bov-XDWux1yWRMp9fotlmINk3SfWThWGe2nlbaKhrcie4irFydgBow/exec")
+    fetch("https://script.google.com/macros/s/AKfycbwnAgaEKo7K1ZPIxDBzHcW6JZYawT6jesIEXpi0RgKSBLdqgFQSixEeZIdBc229vvKg/exec")
       .then(res => res.json())
       .then(data => {
         businessCard = data.find(card => card.cardId === cardId && card.Type === "Business");
@@ -134,7 +134,7 @@
       purchaseAmount
     };
 
-    fetch("https://script.google.com/macros/s/AKfycbzOs6kI1G3Pi9Bov-XDWux1yWRMp9fotlmINk3SfWThWGe2nlbaKhrcie4irFydgBow/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbwnAgaEKo7K1ZPIxDBzHcW6JZYawT6jesIEXpi0RgKSBLdqgFQSixEeZIdBc229vvKg/exec", {
       method: "POST",
       body: JSON.stringify(postData),
       headers: { "Content-Type": "application/json" }
